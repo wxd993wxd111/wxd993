@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>后台管理 - 德江县朗声语言培训学校</title>
+    <title>后台管理 - 朗声艺术培训中心二校区陈娜老师</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -527,7 +527,7 @@
         <div class="login-card">
             <div class="login-header">
                 <h1>管理后台登录</h1>
-                <p>德江县朗声语言培训学校</p>
+                <p>朗声艺术培训中心陈娜老师</p>
             </div>
             <div class="login-error" id="loginError">账号或密码错误，请重试</div>
             <form class="login-form" id="loginForm">
@@ -917,7 +917,7 @@
             }
 
             let csv = '\uFEFF'; // BOM for Excel
-            csv += '孩子姓名,家长姓名,联系电话,课程名称,预约日期,预约时段,预约时间,是否已提醒\n';
+            csv += '孩子姓名,家长姓名,联系电话,稿件名称,预约日期,预约时段,预约时间,是否已提醒\n';
             
             allBookings.forEach(b => {
                 csv += `"${b.childName}","${b.parentName}","${b.phone}","${b.course || ''}","${b.date}","${b.timeSlot}:00-${parseInt(b.timeSlot)+1}:00","${b.createdAt}","${b.reminderSet ? '是' : '否'}"\n`;
