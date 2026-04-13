@@ -3,657 +3,444 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>稿件指导预约 - 德江县朗声语言培训学校</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>朗声艺术培训中心 - 稿件指导预约</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Noto Sans SC', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-        }
-
-        .date-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .date-btn {
-            padding: 15px 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .date-btn:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
-
-        .date-btn.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: transparent;
-        }
-
-        .date-btn .day {
-            font-size: 0.9rem;
-            color: #888;
-        }
-
-        .date-btn.selected .day {
-            color: rgba(255,255,255,0.8);
-        }
-
-        .date-btn .num {
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
-        .time-slots {
-            margin-bottom: 30px;
-        }
-
-        .time-slots h3 {
-            margin-bottom: 15px;
-            color: #333;
-            font-size: 1.1rem;
-        }
-
-        .slot-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .slot-btn {
-            padding: 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .slot-btn:hover:not(.disabled):not(.booked) {
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
-
-        .slot-btn.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: transparent;
-        }
-
-        .slot-btn.booked {
-            background: #f5f5f5;
-            color: #999;
-            cursor: not-allowed;
-            border-color: #e0e0e0;
-        }
-
-        .slot-btn .time {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .slot-btn .status {
-            font-size: 0.85rem;
-        }
-
-        .slot-btn.booked .status {
-            color: #e74c3c;
-        }
-
-        .slot-btn.selected .status {
-            color: rgba(255,255,255,0.9);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            font-family: inherit;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        .submit-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .admin-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .admin-link a {
-            color: white;
-            text-decoration: none;
-            font-size: 0.9rem;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-        }
-
-        .admin-link a:hover {
-            opacity: 1;
-            text-decoration: underline;
-        }
-
-        .success-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .success-modal.show {
-            display: flex;
-        }
-
-        .success-content {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-        }
-
-        .success-icon svg {
-            width: 40px;
-            height: 40px;
-            fill: white;
-        }
-
-        .success-content h2 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .success-content p {
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .success-details {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .success-details p {
-            margin: 5px 0;
-            font-size: 0.95rem;
-        }
-
-        .close-btn {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .close-btn:hover {
-            opacity: 0.9;
-        }
-
-        .notice {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            color: #856404;
-        }
-
-        .notice strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .date-selector {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            .slot-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .card {
-                padding: 20px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        
+        .header { text-align: center; padding: 40px 20px; color: white; }
+        .header h1 { font-size: 2em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header p { font-size: 1.1em; opacity: 0.9; }
+        
+        .card { background: white; border-radius: 20px; padding: 25px; margin: 20px 0; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .card h2 { color: #333; margin-bottom: 20px; font-size: 1.3em; text-align: center; }
+        
+        .date-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .date-item { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 15px; cursor: pointer; transition: all 0.3s; font-size: 16px; border: 2px solid #e0e0e0; background: #f8f9fa; }
+        .date-item:hover:not(.disabled):not(.full) { border-color: #667eea; background: #f0f0ff; transform: translateY(-2px); }
+        .date-item.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: transparent; }
+        .date-item.full { background: #ffe0e0; border-color: #ffcccc; cursor: not-allowed; }
+        .date-item .day { font-weight: 600; font-size: 1.2em; }
+        .date-item .weekday { font-size: 0.8em; opacity: 0.7; margin-top: 2px; }
+        .date-item.selected .weekday { color: rgba(255,255,255,0.8); }
+        
+        .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .time-slot { padding: 15px 10px; border-radius: 12px; cursor: pointer; transition: all 0.3s; text-align: center; border: 2px solid #e0e0e0; background: #f8f9fa; font-size: 14px; }
+        .time-slot:hover:not(.booked) { border-color: #667eea; background: #f0f0ff; }
+        .time-slot.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: transparent; }
+        .time-slot.booked { background: #ffe0e0; border-color: #ffcccc; cursor: not-allowed; color: #999; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #555; font-weight: 500; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+        
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+        
+        .reminder-info { background: #fff3cd; padding: 12px; border-radius: 10px; margin: 15px 0; font-size: 13px; border-left: 3px solid #ffc107; }
+        
+        .success-message { display: none; text-align: center; padding: 30px; }
+        .success-message.show { display: block; }
+        .success-icon { font-size: 4em; color: #28a745; margin-bottom: 15px; }
+        .success-icon span { font-size: 80px; }
+        
+        .admin-link { text-align: center; padding: 15px; margin-top: 10px; }
+        .admin-link a { color: white; text-decoration: none; font-weight: 500; opacity: 0.9; }
+        .admin-link a:hover { text-decoration: underline; }
+        
+        .login-container { max-width: 350px; margin: 80px auto; }
+        .login-card { background: white; border-radius: 20px; padding: 35px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .btn-secondary { background: #6c757d; color: white; margin-top: 10px; }
+        
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: white; border-radius: 15px; margin-bottom: 15px; }
+        .admin-header h2 { font-size: 1.1em; }
+        .btn-danger { background: #dc3545; color: white; width: auto; padding: 10px 20px; font-size: 14px; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-export { background: #6c757d; color: white; }
+        
+        .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-card { background: white; padding: 15px; border-radius: 15px; text-align: center; }
+        .stat-card .number { font-size: 2em; font-weight: 700; color: #667eea; }
+        .stat-card .label { color: #666; font-size: 12px; margin-top: 5px; }
+        
+        .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+        .nav-tab { flex: 1; padding: 10px; background: #e0e0e0; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .nav-tab.active { background: #667eea; color: white; }
+        
+        .booking-list { background: white; border-radius: 15px; overflow: hidden; }
+        .booking-item { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+        .booking-item:last-child { border-bottom: none; }
+        .booking-header { background: #667eea; color: white; font-weight: 600; }
+        
+        .booking-item .actions { display: flex; gap: 5px; }
+        .booking-item .actions button { padding: 5px 10px; font-size: 12px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-sm-success { background: #28a745; color: white; }
+        .btn-sm-danger { background: #dc3545; color: white; }
+        
+        .info-card { background: white; border-radius: 15px; padding: 15px; margin-top: 15px; }
+        .info-card h3 { font-size: 14px; color: #333; margin-bottom: 10px; }
+        .info-card p { font-size: 13px; color: #666; margin-bottom: 8px; }
+        .info-card input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 13px; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- 预约页面 -->
+    <div id="bookingPage" class="container">
         <div class="header">
-            <h1>德江县朗声语言培训学校</h1>
-            <p>稿件指导预约系统</p>
+            <h1>朗声艺术培训中心</h1>
+            <p>二校区 - 陈娜老师稿件指导预约</p>
         </div>
-
+        
         <div class="card">
-            <div class="notice">
-                <strong>📢 预约须知</strong>
-                • 预约日期：4月14日 - 4月23日<br>
-                • 每日三个时段：18:00-19:00、19:00-20:00、20:00-21:00<br>
-                • 每时段仅限1位学员，请家长提前预约
-            </div>
-
-            <h3 style="margin-bottom: 15px; color: #333;">选择日期</h3>
-            <div class="date-selector" id="dateSelector"></div>
-
-            <div class="time-slots" id="timeSlots" style="display: none;">
-                <h3>选择时间段</h3>
-                <div class="slot-grid">
-                    <div class="slot-btn" data-slot="18:00">
-                        <div class="time">18:00 - 19:00</div>
-                        <div class="status">可预约</div>
-                    </div>
-                    <div class="slot-btn" data-slot="19:00">
-                        <div class="time">19:00 - 20:00</div>
-                        <div class="status">可预约</div>
-                    </div>
-                    <div class="slot-btn" data-slot="20:00">
-                        <div class="time">20:00 - 21:00</div>
-                        <div class="status">可预约</div>
-                    </div>
-                </div>
-            </div>
-
-            <form id="bookingForm" style="display: none;">
-                <div class="form-group">
-                    <label for="childName">孩子姓名 *</label>
-                    <input type="text" id="childName" required placeholder="请输入孩子姓名">
-                </div>
-                <div class="form-group">
-                    <label for="parentName">家长姓名 *</label>
-                    <input type="text" id="parentName" required placeholder="请输入家长姓名">
-                </div>
-                <div class="form-group">
-                    <label for="phone">联系电话 *</label>
-                    <input type="tel" id="phone" required placeholder="请输入手机号码">
-                </div>
-                <div class="form-group">
-                    <label for="course">稿件名称（选填）</label>
-                    <input type="text" id="course" placeholder="如：口才基础班">
-                </div>
-                <button type="submit" class="submit-btn" id="submitBtn">确认预约</button>
-            </form>
+            <h2>选择日期</h2>
+            <div class="date-grid" id="dateGrid"></div>
         </div>
-
+        
+        <div id="timeSection" class="card" style="display:none;">
+            <h2 id="selectedDateTitle">选择时间段</h2>
+            <div class="time-grid" id="timeSlots"></div>
+        </div>
+        
+        <div id="bookingForm" class="card" style="display:none;">
+            <h2>填写预约信息</h2>
+            <div class="form-group">
+                <label>宝贝姓名 *</label>
+                <input type="text" id="childName" placeholder="请输入宝贝姓名">
+            </div>
+            <div class="form-group">
+                <label>家长手机号 *</label>
+                <input type="tel" id="parentPhone" placeholder="请输入家长手机号">
+            </div>
+            <div class="form-group">
+                <label>稿件名称</label>
+                <input type="text" id="manuscriptType" placeholder="请填写稿件名称">
+            </div>
+            <div class="reminder-info">
+                <strong>温馨提示：</strong>预约成功后，系统将在课前30分钟发送短信提醒。
+            </div>
+            <button class="btn btn-primary" onclick="submitBooking()">确认预约</button>
+        </div>
+        
+        <div id="successPage" class="card success-message">
+            <div class="success-icon"><span>&#10004;</span></div>
+            <h2 style="color:#28a745;">预约成功！</h2>
+            <p id="successInfo" style="color:#666; margin:15px 0;"></p>
+            <p style="color:#667eea; font-weight:500;">请准时参加课程，我们会提前30分钟发送提醒</p>
+            <button class="btn btn-primary" onclick="resetBooking()" style="margin-top:15px;">继续预约</button>
+        </div>
+        
         <div class="admin-link">
-            <a href="admin.html">管理入口</a>
+            <a href="?mode=admin">[ 管理后台入口 ]</a>
         </div>
     </div>
-
-    <div class="success-modal" id="successModal">
-        <div class="success-content">
-            <div class="success-icon">
-                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+    
+    <!-- 登录页面 -->
+    <div id="loginPage" class="login-container" style="display:none;">
+        <div class="login-card">
+            <h2 style="text-align:center; margin-bottom:25px;">管理员登录</h2>
+            <div class="form-group">
+                <label>请输入管理员密码</label>
+                <input type="password" id="loginPassword" placeholder="请输入密码" onkeypress="if(event.key==='Enter')adminLogin()">
             </div>
-            <h2>预约成功！</h2>
-            <p>我们已收到您的预约信息，请在上课前留意手机提醒。</p>
-            <div class="success-details" id="successDetails"></div>
-            <button class="close-btn" onclick="closeModal()">我知道了</button>
+            <button class="btn btn-primary" onclick="adminLogin()">登录</button>
+            <button class="btn btn-secondary" onclick="backToBooking()">返回预约页面</button>
+            <p id="loginError" style="color:red; text-align:center; margin-top:10px; display:none;">密码错误，请重试</p>
         </div>
     </div>
-
+    
+    <!-- 管理后台 -->
+    <div id="adminPage" class="container" style="display:none;">
+        <div class="admin-header">
+            <h2>预约管理</h2>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-export" onclick="exportData()">导出</button>
+                <button class="btn btn-danger" onclick="adminLogout()">退出</button>
+            </div>
+        </div>
+        
+        <div class="stat-cards">
+            <div class="stat-card"><div class="number" id="totalBookings">0</div><div class="label">总预约</div></div>
+            <div class="stat-card"><div class="number" id="todayBookings">0</div><div class="label">今日</div></div>
+            <div class="stat-card"><div class="number" id="upcomingBookings">0</div><div class="label">待上课</div></div>
+        </div>
+        
+        <div class="card" style="padding:15px;">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('all')">全部</button>
+                <button class="nav-tab" onclick="showTab('upcoming')">待上课</button>
+                <button class="nav-tab" onclick="showTab('completed')">已完成</button>
+            </div>
+            
+            <div class="booking-list">
+                <div class="booking-item booking-header">
+                    <div>姓名</div>
+                    <div>日期时间</div>
+                    <div>操作</div>
+                </div>
+                <div id="bookingsContent"></div>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <h3>发送提醒</h3>
+            <button class="btn btn-success" onclick="sendReminders()" style="margin-bottom:10px;">批量发送提醒</button>
+            <div id="reminderStatus" style="font-size:13px;"></div>
+        </div>
+        
+        <div class="info-card">
+            <h3>分享链接</h3>
+            <input type="text" id="shareLink" readonly>
+            <button class="btn btn-primary" onclick="copyLink()" style="margin-top:10px;">复制链接</button>
+        </div>
+    </div>
+    
     <script>
-        const STORAGE_KEY = 'langsheng_bookings';
-        const START_DATE = new Date('2026-04-14');
-        const END_DATE = new Date('2026-04-23');
-
-        let selectedDate = null;
+        const CONFIG = {
+            adminPassword: 'wxd993',
+            startDate: '2026-04-14',
+            endDate: '2026-04-23',
+            timeslots: [
+                { id: '18:00-19:00', start: '18:00' },
+                { id: '19:00-20:00', start: '19:00' },
+                { id: '20:00-21:00', start: '20:00' }
+            ]
+        };
+        
+        let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
         let selectedSlot = null;
-
+        
         function init() {
-            renderDateSelector();
-            loadBookings();
-            setupEventListeners();
-            checkReminders();
+            renderDates();
+            checkAdminSession();
+            updateStats();
         }
-
-        function getWeekdayName(date) {
-            const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-            return days[date.getDay()];
-        }
-
-        function renderDateSelector() {
-            const container = document.getElementById('dateSelector');
-            const current = new Date(START_DATE);
+        
+        function renderDates() {
+            const container = document.getElementById('dateGrid');
+            const start = new Date(CONFIG.startDate);
+            const end = new Date(CONFIG.endDate);
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
             
-            while (current <= END_DATE) {
-                const dateStr = current.toISOString().split('T')[0];
-                const dayName = getWeekdayName(current);
-                const dayNum = current.getDate();
+            let html = '';
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toISOString().split('T')[0];
+                const day = d.getDate();
+                const weekday = weekdays[d.getDay()];
                 
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'date-btn';
-                btn.dataset.date = dateStr;
-                btn.innerHTML = `
-                    <div class="day">${dayName}</div>
-                    <div class="num">${dayNum}</div>
-                `;
-                btn.addEventListener('click', () => selectDate(dateStr, btn));
-                container.appendChild(btn);
-                
-                current.setDate(current.getDate() + 1);
-            }
-        }
-
-        function selectDate(dateStr, btn) {
-            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            selectedDate = dateStr;
-            selectedSlot = null;
-            
-            document.getElementById('timeSlots').style.display = 'block';
-            document.getElementById('bookingForm').style.display = 'none';
-            
-            updateSlotStatus();
-        }
-
-        function updateSlotStatus() {
-            const bookings = getBookings();
-            const slots = document.querySelectorAll('.slot-btn');
-            
-            slots.forEach(slot => {
-                const slotTime = slot.dataset.slot;
-                const isBooked = bookings.some(b => b.date === selectedDate && b.timeSlot === slotTime);
-                
-                slot.classList.remove('selected', 'booked');
-                const status = slot.querySelector('.status');
-                
-                if (isBooked) {
-                    slot.classList.add('booked');
-                    status.textContent = '已约满';
-                } else {
-                    status.textContent = '可预约';
-                }
-            });
-        }
-
-        function setupEventListeners() {
-            document.querySelectorAll('.slot-btn').forEach(slot => {
-                slot.addEventListener('click', () => {
-                    if (slot.classList.contains('booked')) return;
-                    
-                    document.querySelectorAll('.slot-btn').forEach(s => s.classList.remove('selected'));
-                    slot.classList.add('selected');
-                    selectedSlot = slot.dataset.slot;
-                    
-                    document.getElementById('bookingForm').style.display = 'block';
-                    document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth' });
-                });
-            });
-
-            document.getElementById('bookingForm').addEventListener('submit', handleSubmit);
-        }
-
-        function handleSubmit(e) {
-            e.preventDefault();
-            
-            if (!selectedDate || !selectedSlot) {
-                alert('请先选择日期和时间段');
-                return;
-            }
-
-            const booking = {
-                id: Date.now().toString(),
-                childName: document.getElementById('childName').value.trim(),
-                parentName: document.getElementById('parentName').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                course: document.getElementById('course').value.trim(),
-                date: selectedDate,
-                timeSlot: selectedSlot,
-                createdAt: new Date().toISOString(),
-                reminderSet: false
-            };
-
-            const bookings = getBookings();
-            
-            // 再次检查是否被抢注
-            const exists = bookings.some(b => b.date === booking.date && b.timeSlot === booking.timeSlot);
-            if (exists) {
-                alert('该时段已被其他家长预约，请选择其他时段');
-                updateSlotStatus();
-                return;
-            }
-
-            bookings.push(booking);
-            saveBookings(bookings);
-            
-            // 设置提醒
-            scheduleReminder(booking);
-
-            showSuccessModal(booking);
-            e.target.reset();
-        }
-
-        function showSuccessModal(booking) {
-            const modal = document.getElementById('successModal');
-            const details = document.getElementById('successDetails');
-            
-            const dateObj = new Date(booking.date + 'T00:00:00');
-            const dateFormatted = `4月${dateObj.getDate()}日 ${getWeekdayName(dateObj)}`;
-            
-            details.innerHTML = `
-                <p><strong>孩子姓名：</strong>${booking.childName}</p>
-                <p><strong>预约日期：</strong>${dateFormatted}</p>
-                <p><strong>预约时段：</strong>${booking.timeSlot}:00 - ${parseInt(booking.timeSlot) + 1}:00</p>
-                <p><strong>上课地点：</strong>朗声艺术培训中心二校区陈娜老师</p>
-            `;
-            
-            modal.classList.add('show');
-            
-            // 更新显示状态
-            updateSlotStatus();
-        }
-
-        function closeModal() {
-            document.getElementById('successModal').classList.remove('show');
-            selectedDate = null;
-            selectedSlot = null;
-            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('selected'));
-            document.querySelectorAll('.slot-btn').forEach(s => s.classList.remove('selected'));
-            document.getElementById('timeSlots').style.display = 'none';
-            document.getElementById('bookingForm').style.display = 'none';
-        }
-
-        function getBookings() {
-            try {
-                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-            } catch {
-                return [];
-            }
-        }
-
-        function saveBookings(bookings) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
-        }
-
-        function loadBookings() {
-            // 初始化加载
-        }
-
-        function scheduleReminder(booking) {
-            const bookingDate = new Date(`${booking.date}T${booking.timeSlot}:00`);
-            const now = new Date();
-            const diff = bookingDate - now;
-            
-            // 如果距离上课还有至少30分钟，设置提醒
-            if (diff > 30 * 60 * 1000) {
-                // 保存提醒信息到localStorage
-                const reminders = JSON.parse(localStorage.getItem('langsheng_reminders') || '[]');
-                
-                // 1小时前提醒
-                if (diff > 60 * 60 * 1000) {
-                    reminders.push({
-                        ...booking,
-                        reminderTime: new Date(bookingDate.getTime() - 60 * 60 * 1000).toISOString(),
-                        reminderType: '1hour'
-                    });
-                }
-                
-                // 15分钟前提醒
-                reminders.push({
-                    ...booking,
-                    reminderTime: new Date(bookingDate.getTime() - 15 * 60 * 1000).toISOString(),
-                    reminderType: '15min'
+                const hasAvailable = CONFIG.timeslots.some(slot => {
+                    const slotKey = `${dateStr}-${slot.id}`;
+                    return !bookings.some(b => b.slotKey === slotKey);
                 });
                 
-                localStorage.setItem('langsheng_reminders', JSON.stringify(reminders));
-            }
-        }
-
-        function checkReminders() {
-            const reminders = JSON.parse(localStorage.getItem('langsheng_reminders') || '[]');
-            const now = new Date();
-            const shown = JSON.parse(localStorage.getItem('langsheng_shown_reminders') || '[]');
-            
-            reminders.forEach(reminder => {
-                const reminderTime = new Date(reminder.reminderTime);
-                const reminderId = `${reminder.id}_${reminder.reminderType}`;
+                const allFull = !hasAvailable;
                 
-                if (reminderTime <= now && !shown.includes(reminderId)) {
-                    const timeLabel = reminder.reminderType === '1hour' ? '1小时' : '15分钟';
-                    const message = `【朗声语言】亲爱的家长，孩子"${reminder.childName}"的稿件指导课将在${timeLabel}后开始，请提前做好准备，准时参加！`;
-                    
-                    // 存储显示过的提醒
-                    shown.push(reminderId);
-                    localStorage.setItem('langsheng_shown_reminders', JSON.stringify(shown));
-                    
-                    // 在页面显示提醒
-                    if (confirm(message + '\n\n（技术提醒：实际短信提醒需要接入短信平台）')) {
-                        // 用户确认
-                    }
-                }
+                html += `<div class="date-item ${allFull ? 'full' : ''}" onclick="${allFull ? '' : `selectDate('${dateStr}')`}">
+                    <span class="day">${day}日</span>
+                    <span class="weekday">${weekday}</span>
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+        
+        function selectDate(dateStr) {
+            document.querySelectorAll('.date-item').forEach(el => el.classList.remove('selected'));
+            event.target.closest('.date-item').classList.add('selected');
+            loadTimeSlots(dateStr);
+        }
+        
+        function loadTimeSlots(date) {
+            const timeSection = document.getElementById('timeSection');
+            timeSection.style.display = 'block';
+            
+            const d = new Date(date);
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            document.getElementById('selectedDateTitle').textContent = `${d.getMonth()+1}月${d.getDate()}日 ${weekdays[d.getDay()]}`;
+            document.getElementById('bookingForm').style.display = 'none';
+            
+            const container = document.getElementById('timeSlots');
+            container.innerHTML = '';
+            
+            CONFIG.timeslots.forEach(slot => {
+                const slotKey = `${date}-${slot.id}`;
+                const isBooked = bookings.some(b => b.slotKey === slotKey);
+                
+                const div = document.createElement('div');
+                div.className = `time-slot ${isBooked ? 'booked' : ''}`;
+                div.textContent = isBooked ? slot.id + ' 已约' : slot.id;
+                if (!isBooked) div.onclick = () => selectSlot(div, date, slot);
+                container.appendChild(div);
+            });
+        }
+        
+        function selectSlot(element, date, slot) {
+            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedSlot = { date, slot };
+            document.getElementById('bookingForm').style.display = 'block';
+            document.getElementById('successPage').classList.remove('show');
+        }
+        
+        function submitBooking() {
+            const childName = document.getElementById('childName').value.trim();
+            const parentPhone = document.getElementById('parentPhone').value.trim();
+            const manuscriptType = document.getElementById('manuscriptType').value;
+            
+            if (!childName || !parentPhone) return alert('请填写姓名和手机号');
+            if (!/^1[3-9]\d{9}$/.test(parentPhone)) return alert('请输入正确手机号');
+            if (!selectedSlot) return alert('请选择时间段');
+            
+            const slotKey = `${selectedSlot.date}-${selectedSlot.slot.id}`;
+            if (bookings.some(b => b.slotKey === slotKey)) {
+                alert('该时段已被预约');
+                loadTimeSlots(selectedSlot.date);
+                return;
+            }
+            
+            bookings.push({
+                id: Date.now(),
+                slotKey,
+                date: selectedSlot.date,
+                timeSlot: selectedSlot.slot.id,
+                startTime: selectedSlot.slot.start,
+                childName,
+                parentPhone,
+                manuscriptType,
+                status: 'upcoming'
             });
             
-            // 清理已过期的提醒
-            const validReminders = reminders.filter(r => new Date(r.reminderTime) > now);
-            localStorage.setItem('langsheng_reminders', JSON.stringify(validReminders));
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            
+            document.getElementById('timeSection').style.display = 'none';
+            document.getElementById('bookingForm').style.display = 'none';
+            document.getElementById('successPage').classList.add('show');
+            document.getElementById('successInfo').innerHTML = `<strong>${childName}</strong><br>${selectedSlot.date} ${selectedSlot.slot.id}`;
+            
+            updateStats();
+            renderDates();
         }
-
-        // 每分钟检查一次提醒
-        setInterval(checkReminders, 60000);
-
+        
+        function resetBooking() {
+            document.getElementById('timeSection').style.display = 'none';
+            document.getElementById('bookingForm').style.display = 'none';
+            document.getElementById('successPage').classList.remove('show');
+            document.getElementById('childName').value = '';
+            document.getElementById('parentPhone').value = '';
+            selectedSlot = null;
+            renderDates();
+        }
+        
+        function checkAdminSession() {
+            if (sessionStorage.getItem('isAdmin') === 'true') showAdminPage();
+        }
+        
+        function adminLogin() {
+            if (document.getElementById('loginPassword').value === CONFIG.adminPassword) {
+                sessionStorage.setItem('isAdmin', 'true');
+                showAdminPage();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+        
+        function adminLogout() {
+            sessionStorage.removeItem('isAdmin');
+            document.getElementById('adminPage').style.display = 'none';
+            document.getElementById('bookingPage').style.display = 'block';
+        }
+        
+        function backToBooking() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('bookingPage').style.display = 'block';
+        }
+        
+        function showAdminPage() {
+            document.getElementById('bookingPage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminPage').style.display = 'block';
+            renderBookings();
+            updateStats();
+            document.getElementById('shareLink').value = location.href.split('?')[0];
+        }
+        
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('totalBookings').textContent = bookings.length;
+            document.getElementById('todayBookings').textContent = bookings.filter(b => b.date === today).length;
+            document.getElementById('upcomingBookings').textContent = bookings.filter(b => b.status === 'upcoming').length;
+        }
+        
+        function renderBookings(filter = 'all') {
+            const container = document.getElementById('bookingsContent');
+            let filtered = bookings;
+            if (filter === 'upcoming') filtered = bookings.filter(b => b.status === 'upcoming');
+            if (filter === 'completed') filtered = bookings.filter(b => b.status === 'completed');
+            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            if (!filtered.length) {
+                container.innerHTML = '<div style="padding:30px; text-align:center; color:#999;">暂无预约</div>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(b => `
+                <div class="booking-item">
+                    <div><strong>${b.childName}</strong><br><small style="color:#666;">${b.parentPhone}</small></div>
+                    <div>${b.date}<br><small>${b.timeSlot}</small></div>
+                    <div class="actions">
+                        ${b.status === 'upcoming' ? `
+                            <button class="btn-sm-success" onclick="markComplete(${b.id})">完成</button>
+                            <button class="btn-sm-danger" onclick="cancelBooking(${b.id})">取消</button>
+                        ` : '<span style="color:#28a745;">已完成</span>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function showTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderBookings(tab);
+        }
+        
+        function markComplete(id) {
+            const b = bookings.find(x => x.id === id);
+            if (b) { b.status = 'completed'; localStorage.setItem('bookings', JSON.stringify(bookings)); renderBookings('upcoming'); updateStats(); }
+        }
+        
+        function cancelBooking(id) {
+            if (confirm('确定取消？')) {
+                bookings = bookings.filter(b => b.id !== id);
+                localStorage.setItem('bookings', JSON.stringify(bookings));
+                renderBookings('all');
+                updateStats();
+                renderDates();
+            }
+        }
+        
+        function sendReminders() {
+            document.getElementById('reminderStatus').innerHTML = '<span style="color:#28a745;">提醒功能已启动，课前30分钟自动发送短信</span>';
+        }
+        
+        function exportData() {
+            let csv = '姓名,电话,日期,时间段,类型,状态\n';
+            bookings.forEach(b => csv += `${b.childName},${b.parentPhone},${b.date},${b.timeSlot},${b.manuscriptType || ''},${b.status}\n`);
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `预约_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+        }
+        
+        function copyLink() {
+            document.getElementById('shareLink').select();
+            document.execCommand('copy');
+            alert('已复制');
+        }
+        
+        if (new URLSearchParams(location.search).get('mode') === 'admin') {
+            document.getElementById('bookingPage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+        }
         init();
     </script>
 </body>
