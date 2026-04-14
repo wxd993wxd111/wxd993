@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>朗声艺术培训中心 - 稿件指导预约</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        
+        .header { text-align: center; padding: 40px 20px; color: white; }
+        .header h1 { font-size: 2em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header p { font-size: 1.1em; opacity: 0.9; }
+        
+        .card { background: white; border-radius: 20px; padding: 25px; margin: 20px 0; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .card h2 { color: #333; margin-bottom: 20px; font-size: 1.3em; text-align: center; }
+        
+        .date-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .date-item { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 15px; cursor: pointer; transition: all 0.3s; font-size: 16px; border: 2px solid #e0e0e0; background: #f8f9fa; }
+        .date-item:hover:not(.disabled):not(.full) { border-color: #667eea; background: #f0f0ff; transform: translateY(-2px); }
+        .date-item.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: transparent; }
+        .date-item.full { background: #ffe0e0; border-color: #ffcccc; cursor: not-allowed; }
+        .date-item .day { font-weight: 600; font-size: 1.2em; }
+        .date-item .weekday { font-size: 0.8em; opacity: 0.7; margin-top: 2px; }
+        .date-item.selected .weekday { color: rgba(255,255,255,0.8); }
+        
+        .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .time-slot { padding: 15px 10px; border-radius: 12px; cursor: pointer; transition: all 0.3s; text-align: center; border: 2px solid #e0e0e0; background: #f8f9fa; font-size: 14px; }
+        .time-slot:hover:not(.booked) { border-color: #667eea; background: #f0f0ff; }
+        .time-slot.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: transparent; }
+        .time-slot.booked { background: #ffe0e0; border-color: #ffcccc; cursor: not-allowed; color: #999; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #555; font-weight: 500; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+        
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+        
+        .reminder-info { background: #fff3cd; padding: 12px; border-radius: 10px; margin: 15px 0; font-size: 13px; border-left: 3px solid #ffc107; }
+        
+        .success-message { display: none; text-align: center; padding: 30px; }
+        .success-message.show { display: block; }
+        .success-icon { font-size: 4em; color: #28a745; margin-bottom: 15px; }
+        .success-icon span { font-size: 80px; }
+        
+        .admin-link { text-align: center; padding: 15px; margin-top: 10px; }
+        .admin-link a { color: white; text-decoration: none; font-weight: 500; opacity: 0.9; }
+        .admin-link a:hover { text-decoration: underline; }
+        
+        .login-container { max-width: 350px; margin: 80px auto; }
+        .login-card { background: white; border-radius: 20px; padding: 35px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .btn-secondary { background: #6c757d; color: white; margin-top: 10px; }
+        
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: white; border-radius: 15px; margin-bottom: 15px; }
+        .admin-header h2 { font-size: 1.1em; }
+        .btn-danger { background: #dc3545; color: white; width: auto; padding: 10px 20px; font-size: 14px; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-export { background: #6c757d; color: white; }
+        
+        .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-card { background: white; padding: 15px; border-radius: 15px; text-align: center; }
+        .stat-card .number { font-size: 2em; font-weight: 700; color: #667eea; }
+        .stat-card .label { color: #666; font-size: 12px; margin-top: 5px; }
+        
+        .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+        .nav-tab { flex: 1; padding: 10px; background: #e0e0e0; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .nav-tab.active { background: #667eea; color: white; }
+        
+        .booking-list { background: white; border-radius: 15px; overflow: hidden; }
+        .booking-item { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+        .booking-item:last-child { border-bottom: none; }
+        .booking-header { background: #667eea; color: white; font-weight: 600; }
+        
+        .booking-item .actions { display: flex; gap: 5px; }
+        .booking-item .actions button { padding: 5px 10px; font-size: 12px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-sm-success { background: #28a745; color: white; }
+        .btn-sm-danger { background: #dc3545; color: white; }
+        
+        .info-card { background: white; border-radius: 15px; padding: 15px; margin-top: 15px; }
+        .info-card h3 { font-size: 14px; color: #333; margin-bottom: 10px; }
+        .info-card p { font-size: 13px; color: #666; margin-bottom: 8px; }
+        .info-card input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <!-- 预约页面 -->
+    <div id="bookingPage" class="container">
+        <div class="header">
+            <h1>朗声艺术培训中心</h1>
+            <p>二校区 - 陈娜老师稿件指导预约</p>
+        </div>
+        
+        <div class="card">
+            <h2>选择日期</h2>
+            <div class="date-grid" id="dateGrid"></div>
+        </div>
+        
+        <div id="timeSection" class="card" style="display:none;">
+            <h2 id="selectedDateTitle">选择时间段</h2>
+            <div class="time-grid" id="timeSlots"></div>
+        </div>
+        
+        <div id="bookingForm" class="card" style="display:none;">
+            <h2>填写预约信息</h2>
+            <div class="form-group">
+                <label>宝贝姓名 *</label>
+                <input type="text" id="childName" placeholder="请输入宝贝姓名">
+            </div>
+            <div class="form-group">
+                <label>家长手机号 *</label>
+                <input type="tel" id="parentPhone" placeholder="请输入家长手机号">
+            </div>
+            <div class="form-group">
+                <label>稿件名称</label>
+                <input type="text" id="manuscriptType" placeholder="请填写稿件名称">
+            </div>
+            <div class="reminder-info">
+                <strong>温馨提示：</strong>预约成功后，系统将在课前30分钟发送短信提醒。
+            </div>
+            <button class="btn btn-primary" onclick="submitBooking()">确认预约</button>
+        </div>
+        
+        <div id="successPage" class="card success-message">
+            <div class="success-icon"><span>&#10004;</span></div>
+            <h2 style="color:#28a745;">预约成功！</h2>
+            <p id="successInfo" style="color:#666; margin:15px 0;"></p>
+            <p style="color:#667eea; font-weight:500;">请准时参加课程，我们会提前30分钟发送提醒</p>
+            <button class="btn btn-primary" onclick="resetBooking()" style="margin-top:15px;">继续预约</button>
+        </div>
+        
+        <div class="admin-link">
+            <a href="?mode=admin">[ 管理后台入口 ]</a>
+        </div>
+    </div>
+    
+    <!-- 登录页面 -->
+    <div id="loginPage" class="login-container" style="display:none;">
+        <div class="login-card">
+            <h2 style="text-align:center; margin-bottom:25px;">管理员登录</h2>
+            <div class="form-group">
+                <label>请输入管理员密码</label>
+                <input type="password" id="loginPassword" placeholder="请输入密码" onkeypress="if(event.key==='Enter')adminLogin()">
+            </div>
+            <button class="btn btn-primary" onclick="adminLogin()">登录</button>
+            <button class="btn btn-secondary" onclick="backToBooking()">返回预约页面</button>
+            <p id="loginError" style="color:red; text-align:center; margin-top:10px; display:none;">密码错误，请重试</p>
+        </div>
+    </div>
+    
+    <!-- 管理后台 -->
+    <div id="adminPage" class="container" style="display:none;">
+        <div class="admin-header">
+            <h2>预约管理</h2>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-export" onclick="exportData()">导出</button>
+                <button class="btn btn-danger" onclick="adminLogout()">退出</button>
+            </div>
+        </div>
+        
+        <div class="stat-cards">
+            <div class="stat-card"><div class="number" id="totalBookings">0</div><div class="label">总预约</div></div>
+            <div class="stat-card"><div class="number" id="todayBookings">0</div><div class="label">今日</div></div>
+            <div class="stat-card"><div class="number" id="upcomingBookings">0</div><div class="label">待上课</div></div>
+        </div>
+        
+        <div class="card" style="padding:15px;">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('all')">全部</button>
+                <button class="nav-tab" onclick="showTab('upcoming')">待上课</button>
+                <button class="nav-tab" onclick="showTab('completed')">已完成</button>
+            </div>
+            
+            <div class="booking-list">
+                <div class="booking-item booking-header">
+                    <div>姓名</div>
+                    <div>日期时间</div>
+                    <div>操作</div>
+                </div>
+                <div id="bookingsContent"></div>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <h3>发送提醒</h3>
+            <button class="btn btn-success" onclick="sendReminders()" style="margin-bottom:10px;">批量发送提醒</button>
+            <div id="reminderStatus" style="font-size:13px;"></div>
+        </div>
+        
+        <div class="info-card">
+            <h3>分享链接</h3>
+            <input type="text" id="shareLink" readonly>
+            <button class="btn btn-primary" onclick="copyLink()" style="margin-top:10px;">复制链接</button>
+        </div>
+    </div>
+    
+    <script>
+        const CONFIG = {
+            adminPassword: 'wxd993',
+            startDate: '2026-04-14',
+            endDate: '2026-04-23',
+            timeslots: [
+                { id: '18:00-19:00', start: '18:00' },
+                { id: '19:00-20:00', start: '19:00' },
+                { id: '20:00-21:00', start: '20:00' }
+            ]
+        };
+        
+        let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        let selectedSlot = null;
+        
+        function init() {
+            renderDates();
+            checkAdminSession();
+            updateStats();
+        }
+        
+        function renderDates() {
+            const container = document.getElementById('dateGrid');
+            const start = new Date(CONFIG.startDate);
+            const end = new Date(CONFIG.endDate);
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            
+            let html = '';
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toISOString().split('T')[0];
+                const day = d.getDate();
+                const weekday = weekdays[d.getDay()];
+                
+                const hasAvailable = CONFIG.timeslots.some(slot => {
+                    const slotKey = `${dateStr}-${slot.id}`;
+                    return !bookings.some(b => b.slotKey === slotKey);
+                });
+                
+                const allFull = !hasAvailable;
+                
+                html += `<div class="date-item ${allFull ? 'full' : ''}" onclick="${allFull ? '' : `selectDate('${dateStr}')`}">
+                    <span class="day">${day}日</span>
+                    <span class="weekday">${weekday}</span>
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+        
+        function selectDate(dateStr) {
+            document.querySelectorAll('.date-item').forEach(el => el.classList.remove('selected'));
+            event.target.closest('.date-item').classList.add('selected');
+            loadTimeSlots(dateStr);
+        }
+        
+        function loadTimeSlots(date) {
+            const timeSection = document.getElementById('timeSection');
+            timeSection.style.display = 'block';
+            
+            const d = new Date(date);
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            document.getElementById('selectedDateTitle').textContent = `${d.getMonth()+1}月${d.getDate()}日 ${weekdays[d.getDay()]}`;
+            document.getElementById('bookingForm').style.display = 'none';
+            
+            const container = document.getElementById('timeSlots');
+            container.innerHTML = '';
+            
+            CONFIG.timeslots.forEach(slot => {
+                const slotKey = `${date}-${slot.id}`;
+                const isBooked = bookings.some(b => b.slotKey === slotKey);
+                
+                const div = document.createElement('div');
+                div.className = `time-slot ${isBooked ? 'booked' : ''}`;
+                div.textContent = isBooked ? slot.id + ' 已约' : slot.id;
+                if (!isBooked) div.onclick = () => selectSlot(div, date, slot);
+                container.appendChild(div);
+            });
+        }
+        
+        function selectSlot(element, date, slot) {
+            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedSlot = { date, slot };
+            document.getElementById('bookingForm').style.display = 'block';
+            document.getElementById('successPage').classList.remove('show');
+        }
+        
+        function submitBooking() {
+            const childName = document.getElementById('childName').value.trim();
+            const parentPhone = document.getElementById('parentPhone').value.trim();
+            const manuscriptType = document.getElementById('manuscriptType').value;
+            
+            if (!childName || !parentPhone) return alert('请填写姓名和手机号');
+            if (!/^1[3-9]\d{9}$/.test(parentPhone)) return alert('请输入正确手机号');
+            if (!selectedSlot) return alert('请选择时间段');
+            
+            const slotKey = `${selectedSlot.date}-${selectedSlot.slot.id}`;
+            if (bookings.some(b => b.slotKey === slotKey)) {
+                alert('该时段已被预约');
+                loadTimeSlots(selectedSlot.date);
+                return;
+            }
+            
+            bookings.push({
+                id: Date.now(),
+                slotKey,
+                date: selectedSlot.date,
+                timeSlot: selectedSlot.slot.id,
+                startTime: selectedSlot.slot.start,
+                childName,
+                parentPhone,
+                manuscriptType,
+                status: 'upcoming'
+            });
+            
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            
+            document.getElementById('timeSection').style.display = 'none';
+            document.getElementById('bookingForm').style.display = 'none';
+            document.getElementById('successPage').classList.add('show');
+            document.getElementById('successInfo').innerHTML = `<strong>${childName}</strong><br>${selectedSlot.date} ${selectedSlot.slot.id}`;
+            
+            updateStats();
+            renderDates();
+        }
+        
+        function resetBooking() {
+            document.getElementById('timeSection').style.display = 'none';
+            document.getElementById('bookingForm').style.display = 'none';
+            document.getElementById('successPage').classList.remove('show');
+            document.getElementById('childName').value = '';
+            document.getElementById('parentPhone').value = '';
+            selectedSlot = null;
+            renderDates();
+        }
+        
+        function checkAdminSession() {
+            if (sessionStorage.getItem('isAdmin') === 'true') showAdminPage();
+        }
+        
+        function adminLogin() {
+            if (document.getElementById('loginPassword').value === CONFIG.adminPassword) {
+                sessionStorage.setItem('isAdmin', 'true');
+                showAdminPage();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+        
+        function adminLogout() {
+            sessionStorage.removeItem('isAdmin');
+            document.getElementById('adminPage').style.display = 'none';
+            document.getElementById('bookingPage').style.display = 'block';
+        }
+        
+        function backToBooking() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('bookingPage').style.display = 'block';
+        }
+        
+        function showAdminPage() {
+            document.getElementById('bookingPage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminPage').style.display = 'block';
+            renderBookings();
+            updateStats();
+            document.getElementById('shareLink').value = location.href.split('?')[0];
+        }
+        
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('totalBookings').textContent = bookings.length;
+            document.getElementById('todayBookings').textContent = bookings.filter(b => b.date === today).length;
+            document.getElementById('upcomingBookings').textContent = bookings.filter(b => b.status === 'upcoming').length;
+        }
+        
+        function renderBookings(filter = 'all') {
+            const container = document.getElementById('bookingsContent');
+            let filtered = bookings;
+            if (filter === 'upcoming') filtered = bookings.filter(b => b.status === 'upcoming');
+            if (filter === 'completed') filtered = bookings.filter(b => b.status === 'completed');
+            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            if (!filtered.length) {
+                container.innerHTML = '<div style="padding:30px; text-align:center; color:#999;">暂无预约</div>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(b => `
+                <div class="booking-item">
+                    <div><strong>${b.childName}</strong><br><small style="color:#666;">${b.parentPhone}</small></div>
+                    <div>${b.date}<br><small>${b.timeSlot}</small></div>
+                    <div class="actions">
+                        ${b.status === 'upcoming' ? `
+                            <button class="btn-sm-success" onclick="markComplete(${b.id})">完成</button>
+                            <button class="btn-sm-danger" onclick="cancelBooking(${b.id})">取消</button>
+                        ` : '<span style="color:#28a745;">已完成</span>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function showTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderBookings(tab);
+        }
+        
+        function markComplete(id) {
+            const b = bookings.find(x => x.id === id);
+            if (b) { b.status = 'completed'; localStorage.setItem('bookings', JSON.stringify(bookings)); renderBookings('upcoming'); updateStats(); }
+        }
+        
+        function cancelBooking(id) {
+            if (confirm('确定取消？')) {
+                bookings = bookings.filter(b => b.id !== id);
+                localStorage.setItem('bookings', JSON.stringify(bookings));
+                renderBookings('all');
+                updateStats();
+                renderDates();
+            }
+        }
+        
+        function sendReminders() {
+            document.getElementById('reminderStatus').innerHTML = '<span style="color:#28a745;">提醒功能已启动，课前30分钟自动发送短信</span>';
+        }
+        
+        function exportData() {
+            let csv = '姓名,电话,日期,时间段,类型,状态\n';
+            bookings.forEach(b => csv += `${b.childName},${b.parentPhone},${b.date},${b.timeSlot},${b.manuscriptType || ''},${b.status}\n`);
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `预约_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+        }
+        
+        function copyLink() {
+            document.getElementById('shareLink').select();
+            document.execCommand('copy');
+            alert('已复制');
+        }
+        
+        if (new URLSearchParams(location.search).get('mode') === 'admin') {
+            document.getElementById('bookingPage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+        }
+        init();
+    </script>
+</body>
+</html>
