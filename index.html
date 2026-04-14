@@ -1,1125 +1,447 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI短视频智造工厂 - AI全自动创作发布系统</title>
-<link href="https://cdn.jsdelivr.net/npm/antd@5.12.5/dist/reset.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/antd@5.12.5/dist/antd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  :root {
-    --bg-dark: #0a0e27;
-    --bg-card: #111632;
-    --bg-card-hover: #1a2050;
-    --bg-input: #0d1229;
-    --border: rgba(99,102,241,0.25);
-    --primary: #6366f1;
-    --primary-light: #818cf8;
-    --accent: #38bdf8;
-    --accent2: #f472b6;
-    --success: #22c55e;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-  }
-  body {
-    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg-dark);
-    color: var(--text-primary);
-    min-height: 100vh;
-  }
-  .dark-input .ant-input,
-  .dark-input .ant-select-selector,
-  .dark-input .ant-input-number {
-    background: var(--bg-input) !important;
-    border-color: var(--border) !important;
-    color: var(--text-primary) !important;
-  }
-  .dark-card {
-    background: var(--bg-card) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 12px !important;
-  }
-  .dark-card .ant-card-head {
-    border-bottom-color: var(--border) !important;
-    color: var(--text-primary) !important;
-  }
-  .dark-nav {
-    background: rgba(10,14,39,0.95) !important;
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border) !important;
-  }
-  .gradient-btn {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%) !important;
-    border: none !important;
-    font-weight: 700 !important;
-    letter-spacing: 1px !important;
-    transition: all 0.3s !important;
-    box-shadow: 0 4px 20px rgba(99,102,241,0.4) !important;
-  }
-  .gradient-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 30px rgba(99,102,241,0.6) !important;
-  }
-  .style-card {
-    background: var(--bg-input);
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 12px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-  .style-card:hover {
-    border-color: var(--primary-light);
-    background: var(--bg-card-hover);
-  }
-  .style-card.active {
-    border-color: var(--primary);
-    background: rgba(99,102,241,0.15);
-    box-shadow: 0 0 20px rgba(99,102,241,0.3);
-  }
-  .style-card.active::before {
-    content: '✓';
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 20px;
-    height: 20px;
-    background: var(--primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: white;
-  }
-  .style-card-icon { font-size: 28px; margin-bottom: 8px; }
-  .style-card-label { font-size: 13px; color: var(--text-secondary); }
-  .platform-check {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.3s;
-    background: var(--bg-input);
-  }
-  .platform-check:hover { border-color: var(--primary-light); }
-  .platform-check.checked { border-color: var(--primary); background: rgba(99,102,241,0.1); }
-  .platform-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-  .video-preview-box {
-    background: #000;
-    border-radius: 12px;
-    aspect-ratio: 9/16;
-    max-height: 500px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-    overflow: hidden;
-    position: relative;
-  }
-  .video-preview-box.horizontal { aspect-ratio: 16/9; max-height: 300px; }
-  .section-label {
-    font-size: 12px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 12px;
-  }
-  .copy-box {
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-  }
-  .tag-custom {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    background: rgba(99,102,241,0.2);
-    color: var(--primary-light);
-    margin: 2px;
-  }
-  .progress-bar {
-    height: 6px;
-    border-radius: 3px;
-    background: var(--bg-input);
-    overflow: hidden;
-    margin-top: 8px;
-  }
-  .progress-fill {
-    height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #6366f1, #ec4899);
-    transition: width 0.3s;
-  }
-  .glow-text {
-    background: linear-gradient(90deg, #6366f1, #38bdf8, #ec4899);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .ant-table {
-    background: transparent !important;
-    color: var(--text-primary) !important;
-  }
-  .ant-table-thead > tr > th {
-    background: var(--bg-card) !important;
-    color: var(--text-secondary) !important;
-    border-bottom: 1px solid var(--border) !important;
-  }
-  .ant-table-tbody > tr > td {
-    background: var(--bg-card) !important;
-    border-bottom: 1px solid var(--border) !important;
-    color: var(--text-primary) !important;
-  }
-  .ant-table-tbody > tr:hover > td { background: var(--bg-card-hover) !important; }
-  .ant-select-dropdown, .ant-picker-dropdown {
-    background: var(--bg-card) !important;
-  }
-  .ant-checkbox-inner {
-    background: var(--bg-input) !important;
-    border-color: var(--border) !important;
-  }
-  .scroll-area::-webkit-scrollbar { width: 4px; }
-  .scroll-area::-webkit-scrollbar-track { background: transparent; }
-  .scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 10px rgba(99,102,241,0.3); }
-    50% { box-shadow: 0 0 30px rgba(99,102,241,0.6); }
-  }
-  .generating { animation: pulse-glow 1.5s infinite; }
-  .upload-dragger {
-    background: var(--bg-input) !important;
-    border: 2px dashed var(--border) !important;
-    border-radius: 12px !important;
-    transition: all 0.3s !important;
-  }
-  .upload-dragger:hover, .upload-dragger.ant-upload-drag-hover {
-    border-color: var(--primary) !important;
-    background: rgba(99,102,241,0.05) !important;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>朗声艺术培训中心 - 稿件指导预约</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        
+        .header { text-align: center; padding: 40px 20px; color: white; }
+        .header h1 { font-size: 2em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header p { font-size: 1.1em; opacity: 0.9; }
+        
+        .card { background: white; border-radius: 20px; padding: 25px; margin: 20px 0; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .card h2 { color: #333; margin-bottom: 20px; font-size: 1.3em; text-align: center; }
+        
+        .date-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .date-item { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 15px; cursor: pointer; transition: all 0.3s; font-size: 16px; border: 2px solid #e0e0e0; background: #f8f9fa; }
+        .date-item:hover:not(.disabled):not(.full) { border-color: #667eea; background: #f0f0ff; transform: translateY(-2px); }
+        .date-item.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: transparent; }
+        .date-item.full { background: #ffe0e0; border-color: #ffcccc; cursor: not-allowed; }
+        .date-item .day { font-weight: 600; font-size: 1.2em; }
+        .date-item .weekday { font-size: 0.8em; opacity: 0.7; margin-top: 2px; }
+        .date-item.selected .weekday { color: rgba(255,255,255,0.8); }
+        
+        .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .time-slot { padding: 15px 10px; border-radius: 12px; cursor: pointer; transition: all 0.3s; text-align: center; border: 2px solid #e0e0e0; background: #f8f9fa; font-size: 14px; }
+        .time-slot:hover:not(.booked) { border-color: #667eea; background: #f0f0ff; }
+        .time-slot.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: transparent; }
+        .time-slot.booked { background: #ffe0e0; border-color: #ffcccc; cursor: not-allowed; color: #999; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #555; font-weight: 500; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+        
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+        
+        .reminder-info { background: #fff3cd; padding: 12px; border-radius: 10px; margin: 15px 0; font-size: 13px; border-left: 3px solid #ffc107; }
+        
+        .success-message { display: none; text-align: center; padding: 30px; }
+        .success-message.show { display: block; }
+        .success-icon { font-size: 4em; color: #28a745; margin-bottom: 15px; }
+        .success-icon span { font-size: 80px; }
+        
+        .admin-link { text-align: center; padding: 15px; margin-top: 10px; }
+        .admin-link a { color: white; text-decoration: none; font-weight: 500; opacity: 0.9; }
+        .admin-link a:hover { text-decoration: underline; }
+        
+        .login-container { max-width: 350px; margin: 80px auto; }
+        .login-card { background: white; border-radius: 20px; padding: 35px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .btn-secondary { background: #6c757d; color: white; margin-top: 10px; }
+        
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: white; border-radius: 15px; margin-bottom: 15px; }
+        .admin-header h2 { font-size: 1.1em; }
+        .btn-danger { background: #dc3545; color: white; width: auto; padding: 10px 20px; font-size: 14px; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-export { background: #6c757d; color: white; }
+        
+        .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-card { background: white; padding: 15px; border-radius: 15px; text-align: center; }
+        .stat-card .number { font-size: 2em; font-weight: 700; color: #667eea; }
+        .stat-card .label { color: #666; font-size: 12px; margin-top: 5px; }
+        
+        .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+        .nav-tab { flex: 1; padding: 10px; background: #e0e0e0; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .nav-tab.active { background: #667eea; color: white; }
+        
+        .booking-list { background: white; border-radius: 15px; overflow: hidden; }
+        .booking-item { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+        .booking-item:last-child { border-bottom: none; }
+        .booking-header { background: #667eea; color: white; font-weight: 600; }
+        
+        .booking-item .actions { display: flex; gap: 5px; }
+        .booking-item .actions button { padding: 5px 10px; font-size: 12px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-sm-success { background: #28a745; color: white; }
+        .btn-sm-danger { background: #dc3545; color: white; }
+        
+        .info-card { background: white; border-radius: 15px; padding: 15px; margin-top: 15px; }
+        .info-card h3 { font-size: 14px; color: #333; margin-bottom: 10px; }
+        .info-card p { font-size: 13px; color: #666; margin-bottom: 8px; }
+        .info-card input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 13px; }
+    </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useEffect, useRef, useCallback } = React;
-const { ConfigProvider, Layout, Menu, Card, Button, Upload, Select, Input, Tabs, Table, Tag, Modal, Form, message, Progress, Space, Typography, Row, Col, Empty, Badge, Popconfirm, Divider, Alert, Switch, Slider, Collapse, Radio, Checkbox, Tooltip, Typography: { Text, Paragraph, Title } } = antd;
-const { Header, Sider, Content } = Layout;
-const { TextArea } = Input;
-const { confirm } = Modal;
-
-// ==================== 数据存储 ====================
-const useAppState = () => {
-  const [tasks, setTasks] = useState(() => {
-    const s = localStorage.getItem('ai_tasks');
-    return s ? JSON.parse(s) : [
-      { id: 'TASK001', filename: '产品宣传片.mp4', status: 'completed', platform: ['douyin','xiaohongshu'], progress: 100, copy: { title: '这款产品真的太绝了！', content: '家人们，谁懂啊！这东西太好用了😭', hashtags: ['#好物分享','#推荐','#种草'] }, createdAt: new Date(Date.now()-86400000).toISOString() },
-      { id: 'TASK002', filename: '美食探店.mov', status: 'processing', platform: ['douyin'], progress: 67, copy: { title: '', content: '', hashtags: [] }, createdAt: new Date(Date.now()-3600000).toISOString() },
-      { id: 'TASK003', filename: '三农记录.mp4', status: 'pending', platform: ['kuaishou','wechat'], progress: 0, copy: { title: '', content: '', hashtags: [] }, createdAt: new Date().toISOString() }
-    ];
-  });
-  const [accounts, setAccounts] = useState(() => {
-    const s = localStorage.getItem('ai_accounts');
-    return s ? JSON.parse(s) : [
-      { platform: 'douyin', bound: true, name: '创作者小A', avatar: '🎵' },
-      { platform: 'xiaohongshu', bound: true, name: '小红书运营', avatar: '📕' },
-      { platform: 'wechat', bound: false, name: '', avatar: '📺' },
-      { platform: 'kuaishou', bound: false, name: '', avatar: '✊' }
-    ];
-  });
-  const [settings, setSettings] = useState(() => {
-    const s = localStorage.getItem('ai_settings');
-    return s ? JSON.parse(s) : { resolution: '1080x1920', autoPublish: false, watermark: true, font: '常规', subtitleColor: 'white' };
-  });
-  const [musicLibrary, setMusicLibrary] = useState([
-    { id: '1', name: '欢快活力BGM', artist: '原创', duration: '0:45', mood: '欢快', liked: true, platforms: ['douyin','xiaohongshu'] },
-    { id: '2', name: '温情故事配乐', artist: '原创', duration: '1:30', mood: '温情', liked: false, platforms: ['wechat','xiaohongshu'] },
-    { id: '3', name: '励志热血', artist: '原创', duration: '0:30', mood: '励志', liked: true, platforms: ['douyin','kuaishou'] },
-    { id: '4', name: '悬疑紧张', artist: '原创', duration: '1:00', mood: '悬疑', liked: false, platforms: ['douyin'] },
-    { id: '5', name: '浪漫钢琴', artist: '原创', duration: '2:00', mood: '浪漫', liked: false, platforms: ['xiaohongshu','wechat'] },
-    { id: '6', name: '潮流电音', artist: '原创', duration: '0:40', mood: '酷炫', liked: true, platforms: ['douyin','kuaishou'] },
-    { id: '7', name: '乡村田野', artist: '原创', duration: '1:15', mood: '自然', liked: false, platforms: ['kuaishou','wechat'] },
-    { id: '8', name: '美食探店', artist: '原创', duration: '0:50', mood: '欢快', liked: false, platforms: ['douyin','xiaohongshu'] }
-  ]);
-
-  useEffect(() => { localStorage.setItem('ai_tasks', JSON.stringify(tasks)); }, [tasks]);
-  useEffect(() => { localStorage.setItem('ai_accounts', JSON.stringify(accounts)); }, [accounts]);
-  useEffect(() => { localStorage.setItem('ai_settings', JSON.stringify(settings)); }, [settings]);
-
-  const addTask = (task) => {
-    const id = 'TASK' + String(Date.now()).slice(-6);
-    setTasks(prev => [{ ...task, id, status: 'pending', progress: 0, createdAt: new Date().toISOString() }, ...prev]);
-    return id;
-  };
-
-  const updateTask = (id, updates) => setTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
-  const deleteTask = (id) => setTasks(prev => prev.filter(t => t.id !== id));
-  const bindAccount = (platform, name) => setAccounts(prev => prev.map(a => a.platform === platform ? { ...a, bound: true, name } : a));
-  const unbindAccount = (platform) => setAccounts(prev => prev.map(a => a.platform === platform ? { ...a, bound: false, name: '' } : a));
-  const updateSettings = (s) => setSettings(prev => ({ ...prev, ...s }));
-  const toggleMusicLike = (id) => setMusicLibrary(prev => prev.map(m => m.id === id ? { ...m, liked: !m.liked } : m));
-
-  return { tasks, accounts, settings, musicLibrary, addTask, updateTask, deleteTask, bindAccount, unbindAccount, updateSettings, toggleMusicLike };
-};
-
-// ==================== 平台配置 ====================
-const platformConfig = {
-  douyin: { name: '抖音', color: '#fe2c55', bg: 'rgba(254,44,85,0.15)', icon: '🎵' },
-  wechat: { name: '视频号', color: '#07c160', bg: 'rgba(7,193,96,0.15)', icon: '📺' },
-  xiaohongshu: { name: '小红书', color: '#ff2442', bg: 'rgba(255,36,66,0.15)', icon: '📕' },
-  kuaishou: { name: '快手', color: '#ff4906', bg: 'rgba(255,73,6,0.15)', icon: '✊' }
-};
-
-const contentStyles = [
-  { id: 'knowledge', label: '口播知识', icon: '🎓' },
-  { id: 'food', label: '美食探店', icon: '🍜' },
-  { id: 'rural', label: '三农乡村', icon: '🌾' },
-  { id: 'shopping', label: '好物带货', icon: '🛒' },
-  { id: 'daily', label: '生活日常', icon: '☀️' },
-  { id: 'comedy', label: '搞笑剧情', icon: '😂' },
-  { id: 'promo', label: '企业宣传', icon: '🏢' }
-];
-
-const copyTemplates = {
-  knowledge: { title: '学会这招，效率翻倍！建议收藏', content: '家人们，这个方法真的绝了！看完你就明白了👇赶紧收藏起来慢慢看！', hashtags: ['#知识分享','#干货','#必看','#教程'] },
-  food: { title: '这家店真的好吃到哭😭', content: '挖到宝了！本地人都知道的宝藏小店🔥环境超棒，味道一绝！建议早点去排队~', hashtags: ['#美食探店','#好吃到哭','#宝藏小店','#同城美食'] },
-  rural: { title: '农村的真实生活，太治愈了🌾', content: '远离城市的喧嚣，在这里找到了内心的平静。每天日出而作，日落而息，这就是向往的生活。', hashtags: ['#三农','#乡村生活','#治愈系','#田园生活'] },
-  shopping: { title: '这个真的太好用了！强烈推荐！', content: '用了半个月才来分享，真的是神器！性价比超高，入手不亏！姐妹们快冲~💕', hashtags: ['#好物分享','#种草','#推荐','#必买清单'] },
-  daily: { title: '普通人的一天，也可以很精彩✨', content: '今天做了想做的事，见了想见的人。平凡的日子也有闪闪发光的瞬间🌟', hashtags: ['#生活记录','#日常分享','#vlog','#治愈'] },
-  comedy: { title: '笑不活了！这个也太离谱了🤣', content: '家人们谁懂啊！本来以为很正常，结果...哈哈哈哈哈笑死我了！你们来评评理！', hashtags: ['#搞笑','#沙雕日常','#笑不活了','#段子'] },
-  promo: { title: '【官方介绍】我们是谁', content: '专注于品质与服务，为客户创造价值。了解我们的故事，感受专业与温度。', hashtags: ['#品牌故事','#企业文化','#企业宣传','#官方介绍'] }
-};
-
-// ==================== 顶部导航 ====================
-const TopNav = ({ currentPage, setCurrentPage, user }) => {
-  const menuItems = [
-    { key: 'create', label: '智能创作' },
-    { key: 'tasks', label: '任务管理' },
-    { key: 'accounts', label: '账号绑定' },
-    { key: 'library', label: '素材库' },
-    { key: 'settings', label: '系统设置' }
-  ];
-
-  return (
-    <Header className="dark-nav !flex !items-center !px-6" style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
-      <div className="flex items-center gap-8">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg gradient-btn flex items-center justify-center text-sm">AI</div>
-          <span className="text-lg font-bold glow-text" style={{ whiteSpace: 'nowrap' }}>AI短视频智造工厂</span>
+    <!-- 预约页面 -->
+    <div id="bookingPage" class="container">
+        <div class="header">
+            <h1>朗声艺术培训中心</h1>
+            <p>二校区 - 陈娜老师稿件指导预约</p>
         </div>
-        <nav className="flex gap-1">
-          {menuItems.map(item => (
-            <div key={item.key} onClick={() => setCurrentPage(item.key)}
-              className="px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all"
-              style={{
-                background: currentPage === item.key ? 'rgba(99,102,241,0.2)' : 'transparent',
-                color: currentPage === item.key ? '#818cf8' : '#94a3b8'
-              }}>
-              {item.label}
+        
+        <div class="card">
+            <h2>选择日期</h2>
+            <div class="date-grid" id="dateGrid"></div>
+        </div>
+        
+        <div id="timeSection" class="card" style="display:none;">
+            <h2 id="selectedDateTitle">选择时间段</h2>
+            <div class="time-grid" id="timeSlots"></div>
+        </div>
+        
+        <div id="bookingForm" class="card" style="display:none;">
+            <h2>填写预约信息</h2>
+            <div class="form-group">
+                <label>宝贝姓名 *</label>
+                <input type="text" id="childName" placeholder="请输入宝贝姓名">
             </div>
-          ))}
-        </nav>
-      </div>
-      <div className="flex items-center gap-4">
-        <Tooltip title="暂无新消息"><div className="relative cursor-pointer p-2 rounded-lg hover:bg-white/5" style={{ color: '#94a3b8' }}>🔔<span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span></div></Tooltip>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
-          <div className="w-7 h-7 rounded-full gradient-btn flex items-center justify-center text-xs">创</div>
-          <span className="text-sm font-medium" style={{ color: '#e2e8f0' }}>{user}</span>
+            <div class="form-group">
+                <label>家长手机号 *</label>
+                <input type="tel" id="parentPhone" placeholder="请输入家长手机号">
+            </div>
+            <div class="form-group">
+                <label>稿件名称</label>
+                <input type="text" id="manuscriptType" placeholder="请填写稿件名称">
+            </div>
+            <div class="reminder-info">
+                <strong>温馨提示：</strong>预约成功后，系统将在课前30分钟发送短信提醒。
+            </div>
+            <button class="btn btn-primary" onclick="submitBooking()">确认预约</button>
         </div>
-        <Button type="text" size="small" style={{ color: '#64748b' }}>退出</Button>
-      </div>
-    </Header>
-  );
-};
-
-// ==================== 智能创作页 ====================
-const CreatePage = ({ addTask, tasks }) => {
-  const [uploaded, setUploaded] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [selectedStyle, setSelectedStyle] = useState(null);
-  const [selectedPlatforms, setSelectedPlatforms] = useState(['douyin']);
-  const [prefs, setPrefs] = useState({
-    clipLevel: 'standard',
-    subtitleOn: true,
-    subtitleFont: '常规',
-    subtitleColor: 'white',
-    musicMode: 'auto',
-    selectedMusic: null,
-    musicVolume: 'medium',
-    copyStyle: 'popular'
-  });
-  const [expandedPrefs, setExpandedPrefs] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [genProgress, setGenProgress] = useState(0);
-  const [generatedResult, setGeneratedResult] = useState(null);
-  const [musicMood, setMusicMood] = useState('all');
-  const [genStep, setGenStep] = useState(0);
-
-  const handleUpload = async (file) => {
-    if (!file.type.startsWith('video/')) { message.error('请上传视频文件！'); return false; }
-    setUploading(true);
-    setUploadProgress(0);
-    for (let i = 0; i <= 100; i += 5) {
-      await new Promise(r => setTimeout(r, 80));
-      setUploadProgress(i);
-    }
-    const mockMeta = { duration: Math.floor(Math.random()*300)+30, width: 1920, height: 1080 };
-    setUploaded({ name: file.name, ...mockMeta, url: URL.createObjectURL(file) });
-    setUploading(false);
-    message.success('视频上传成功！');
-    return false;
-  };
-
-  const togglePlatform = (p) => {
-    setSelectedPlatforms(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
-  };
-
-  const handleGenerate = async () => {
-    if (!uploaded) { message.warning('请先上传视频！'); return; }
-    if (!selectedStyle) { message.warning('请选择内容风格！'); return; }
-    if (selectedPlatforms.length === 0) { message.warning('请选择至少一个发布平台！'); return; }
-
-    setGenerating(true);
-    setGenProgress(0);
-    setGenStep(0);
-
-    const steps = ['正在分析视频内容...', '正在智能剪辑...', '正在生成字幕...', '正在匹配背景音乐...', '正在生成文案...', '正在生成封面...', '完成！'];
+        
+        <div id="successPage" class="card success-message">
+            <div class="success-icon"><span>&#10004;</span></div>
+            <h2 style="color:#28a745;">预约成功！</h2>
+            <p id="successInfo" style="color:#666; margin:15px 0;"></p>
+            <p style="color:#667eea; font-weight:500;">请准时参加课程，我们会提前30分钟发送提醒</p>
+            <button class="btn btn-primary" onclick="resetBooking()" style="margin-top:15px;">继续预约</button>
+        </div>
+        
+        <div class="admin-link">
+            <a href="?mode=admin">[ 管理后台入口 ]</a>
+        </div>
+    </div>
     
-    for (let i = 0; i <= 100; i += Math.random() * 15 + 5) {
-      await new Promise(r => setTimeout(r, 300 + Math.random() * 400));
-      setGenProgress(Math.min(Math.round(i), 100));
-      setGenStep(Math.min(Math.floor(i / 15), 6));
-    }
-
-    const template = copyTemplates[selectedStyle];
-    const result = {
-      copy: {
-        title: template.title,
-        content: template.content,
-        hashtags: template.hashtags
-      },
-      selectedMusic: { id: '1', name: '欢快活力BGM', mood: '欢快' },
-      thumbnail: null,
-      processedUrl: uploaded?.url
-    };
-
-    setGeneratedResult(result);
-    addTask({
-      filename: uploaded.name,
-      platform: selectedPlatforms,
-      progress: 100,
-      copy: result.copy
-    });
-    setGenerating(false);
-    message.success('🎉 AI全自动生成完成！');
-  };
-
-  const copyAllText = () => {
-    if (!generatedResult) return;
-    const text = `${generatedResult.copy.title}\n\n${generatedResult.copy.content}\n\n${generatedResult.copy.hashtags.map(t => '#' + t).join(' ')}`;
-    navigator.clipboard.writeText(text).then(() => message.success('文案已复制到剪贴板！'));
-  };
-
-  const musicList = musicMood === 'all' ? [
-    { id: '1', name: '欢快活力BGM', mood: '欢快', duration: '0:45', liked: true },
-    { id: '2', name: '温情故事配乐', mood: '温情', duration: '1:30', liked: false },
-    { id: '3', name: '励志热血', mood: '励志', duration: '0:30', liked: true },
-    { id: '8', name: '美食探店', mood: '欢快', duration: '0:50', liked: false }
-  ] : [
-    { id: '1', name: '欢快活力BGM', mood: '欢快', duration: '0:45', liked: true }
-  ];
-
-  return (
-    <div style={{ display: 'flex', gap: 24, minHeight: 'calc(100vh - 120px)' }}>
-      {/* 左侧操作区 */}
-      <div className="scroll-area" style={{ width: '42%', overflowY: 'auto', paddingRight: 8 }}>
-        {/* 模块1：视频上传 */}
-        <Card className="dark-card mb-4" size="small">
-          <div className="section-label">视频上传</div>
-          {!uploaded ? (
-            <Upload.Dragger name="file" multiple={false} beforeUpload={handleUpload} showUploadList={false} accept="video/*" className="upload-dragger" disabled={uploading}>
-              {uploading ? (
-                <div className="py-8 text-center">
-                  <div className="text-lg mb-3" style={{ color: '#818cf8' }}>视频上传中...</div>
-                  <div className="progress-bar"><div className="progress-fill" style={{ width: uploadProgress + '%' }}></div></div>
-                  <div className="text-sm mt-2" style={{ color: '#64748b' }}>{uploadProgress}%</div>
-                </div>
-              ) : (
-                <div className="py-8 text-center">
-                  <div className="text-4xl mb-3">📹</div>
-                  <div className="text-base mb-1" style={{ color: '#e2e8f0' }}>拖拽视频至此 或 点击选择文件</div>
-                  <div className="text-sm" style={{ color: '#64748b' }}>支持 MP4/MOV/AVI，最大500MB，最长10分钟</div>
-                </div>
-              )}
-            </Upload.Dragger>
-          ) : (
-            <div>
-              <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>
-                <div>
-                  <div className="flex items-center gap-2 mb-1"><span style={{ color: '#22c55e' }}>✓</span><span className="font-medium text-sm" style={{ color: '#e2e8f0' }}>{uploaded.name}</span></div>
-                  <div className="text-xs" style={{ color: '#64748b' }}>时长: {Math.floor(uploaded.duration/60)}分{uploaded.duration%60}秒 · {uploaded.width}×{uploaded.height}</div>
-                </div>
-                <Button size="small" onClick={() => setUploaded(null)}>重新上传</Button>
-              </div>
+    <!-- 登录页面 -->
+    <div id="loginPage" class="login-container" style="display:none;">
+        <div class="login-card">
+            <h2 style="text-align:center; margin-bottom:25px;">管理员登录</h2>
+            <div class="form-group">
+                <label>请输入管理员密码</label>
+                <input type="password" id="loginPassword" placeholder="请输入密码" onkeypress="if(event.key==='Enter')adminLogin()">
             </div>
-          )}
-        </Card>
-
-        {/* 模块2：内容风格 */}
-        <Card className="dark-card mb-4" size="small">
-          <div className="section-label">内容风格选择 <span style={{ color: '#ef4444' }}>*</span></div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-            {contentStyles.map(s => (
-              <div key={s.id} className={`style-card ${selectedStyle === s.id ? 'active' : ''}`} onClick={() => setSelectedStyle(s.id)}>
-                <div className="style-card-icon">{s.icon}</div>
-                <div className="style-card-label">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* 模块3：平台发布 */}
-        <Card className="dark-card mb-4" size="small">
-          <div className="section-label">平台发布设置</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {Object.entries(platformConfig).map(([key, p]) => (
-              <div key={key} className={`platform-check ${selectedPlatforms.includes(key) ? 'checked' : ''}`} onClick={() => togglePlatform(key)}>
-                <div className="platform-icon" style={{ background: p.color }}>{p.icon}</div>
-                <div className="flex-1">
-                  <div className="text-sm font-medium" style={{ color: selectedPlatforms.includes(key) ? p.color : '#e2e8f0' }}>{p.name}</div>
-                  <div className="text-xs" style={{ color: '#64748b' }}>自动适配</div>
-                </div>
-                <div style={{ width: 18, height: 18, borderRadius: 4, border: `2px solid ${selectedPlatforms.includes(key) ? p.color : '#475569'}`, background: selectedPlatforms.includes(key) ? p.color : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {selectedPlatforms.includes(key) && <span style={{ color: 'white', fontSize: 10 }}>✓</span>}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* 模块4：AI偏好设置 */}
-        <Card className="dark-card mb-4" size="small">
-          <div onClick={() => setExpandedPrefs(!expandedPrefs)} className="flex items-center justify-between cursor-pointer">
-            <div className="section-label" style={{ marginBottom: 0 }}>AI生成偏好设置</div>
-            <span style={{ color: '#64748b', transition: 'transform 0.3s', transform: expandedPrefs ? 'rotate(180deg)' : 'rotate(0deg)', display: 'inline-block' }}>▲</span>
-          </div>
-          {expandedPrefs && (
-            <div className="mt-4 space-y-4">
-              {/* 剪辑强度 */}
-              <div>
-                <div className="text-xs mb-2" style={{ color: '#94a3b8' }}>剪辑强度</div>
-                <Radio.Group value={prefs.clipLevel} onChange={e => setPrefs({...prefs, clipLevel: e.target.value})} className="dark-input">
-                  <Radio.Button value="light" className="!bg-[var(--bg-input)] !text-[var(--text-secondary)]">轻度剪辑</Radio.Button>
-                  <Radio.Button value="standard" className="!bg-[var(--bg-input)] !text-[var(--text-secondary)]">标准剪辑</Radio.Button>
-                  <Radio.Button value="heavy" className="!bg-[var(--bg-input)] !text-[var(--text-secondary)]">重度剪辑</Radio.Button>
-                </Radio.Group>
-              </div>
-              {/* 字幕设置 */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-xs" style={{ color: '#94a3b8' }}>字幕设置</div>
-                  <Switch size="small" checked={prefs.subtitleOn} onChange={v => setPrefs({...prefs, subtitleOn: v})} />
-                </div>
-                {prefs.subtitleOn && (
-                  <div className="flex gap-2">
-                    <Select size="small" value={prefs.subtitleFont} onChange={v => setPrefs({...prefs, subtitleFont: v})} className="dark-input flex-1">
-                      <Select.Option value="常规">常规字体</Select.Option>
-                      <Select.Option value="醒目">醒目字体</Select.Option>
-                      <Select.Option value="综艺体">综艺体</Select.Option>
-                    </Select>
-                    <Select size="small" value={prefs.subtitleColor} onChange={v => setPrefs({...prefs, subtitleColor: v})} className="dark-input flex-1">
-                      <Select.Option value="white">白字黑边</Select.Option>
-                      <Select.Option value="yellow">黄字黑边</Select.Option>
-                    </Select>
-                  </div>
-                )}
-              </div>
-              {/* 音乐设置 */}
-              <div>
-                <div className="text-xs mb-2" style={{ color: '#94a3b8' }}>背景音乐</div>
-                <div className="flex gap-2 mb-2">
-                  <Button size="small" type={prefs.musicMode === 'auto' ? 'primary' : 'default'} onClick={() => setPrefs({...prefs, musicMode: 'auto'})}>自动匹配</Button>
-                  <Button size="small" type={prefs.musicMode === 'custom' ? 'primary' : 'default'} onClick={() => setPrefs({...prefs, musicMode: 'custom'})}>自定义选择</Button>
-                </div>
-                {prefs.musicMode === 'custom' && (
-                  <Select size="small" placeholder="选择音乐" value={prefs.selectedMusic} onChange={v => setPrefs({...prefs, selectedMusic: v})} className="dark-input w-full">
-                    <Select.Option value="1">欢快活力BGM</Select.Option>
-                    <Select.Option value="2">温情故事配乐</Select.Option>
-                    <Select.Option value="3">励志热血</Select.Option>
-                    <Select.Option value="4">悬疑紧张</Select.Option>
-                    <Select.Option value="5">浪漫钢琴</Select.Option>
-                  </Select>
-                )}
-                <div className="mt-2">
-                  <div className="text-xs mb-1" style={{ color: '#64748b' }}>音量：{prefs.musicVolume === 'low' ? '低' : prefs.musicVolume === 'medium' ? '中' : '高'}</div>
-                  <Slider size="small" min={0} max={2} value={prefs.musicVolume === 'low' ? 0 : prefs.musicVolume === 'medium' ? 1 : 2} onChange={v => setPrefs({...prefs, musicVolume: v === 0 ? 'low' : v === 1 ? 'medium' : 'high'})} className="dark-input" />
-                </div>
-              </div>
-              {/* 文案风格 */}
-              <div>
-                <div className="text-xs mb-2" style={{ color: '#94a3b8' }}>文案风格</div>
-                <Select size="small" value={prefs.copyStyle} onChange={v => setPrefs({...prefs, copyStyle: v})} className="dark-input w-full">
-                  <Select.Option value="popular">🔥 爆款引流</Select.Option>
-                  <Select.Option value="warm">💕 温和走心</Select.Option>
-                  <Select.Option value="earthy">🎤 接地气口语</Select.Option>
-                  <Select.Option value="premium">✨ 高级质感</Select.Option>
-                </Select>
-              </div>
-            </div>
-          )}
-        </Card>
-
-        {/* 模块5：一键启动 */}
-        <div className="text-center">
-          <Button
-            size="large"
-            className={`gradient-btn w-full ${generating ? 'generating' : ''}`}
-            style={{ height: 56, fontSize: 16 }}
-            onClick={handleGenerate}
-            disabled={generating || !uploaded || !selectedStyle}
-            icon={generating ? null : '🚀'}
-          >
-            {generating ? (
-              <span>
-                {['分析中...', '剪辑中...', '字幕生成...', '音乐匹配...', '文案生成...', '封面生成...', '完成！'][genStep]}
-                <span style={{ marginLeft: 12, opacity: 0.7 }}>{genProgress}%</span>
-              </span>
-            ) : '🚀 开始AI全自动生成'}
-          </Button>
-          <div className="text-xs mt-2" style={{ color: '#64748b' }}>自动剪辑 + 配乐 + 字幕 + 文案 + 封面</div>
-          {generating && <Progress percent={genProgress} showInfo={false} strokeColor={{ '0%': '#6366f1', '100%': '#ec4899' }} className="mt-3" />}
+            <button class="btn btn-primary" onclick="adminLogin()">登录</button>
+            <button class="btn btn-secondary" onclick="backToBooking()">返回预约页面</button>
+            <p id="loginError" style="color:red; text-align:center; margin-top:10px; display:none;">密码错误，请重试</p>
         </div>
-      </div>
-
-      {/* 右侧预览区 */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }} className="scroll-area">
-        {/* 原始视频 */}
-        <Card className="dark-card mb-4" size="small">
-          <div className="section-label">原始视频预览</div>
-          <div className="video-preview-box horizontal">
-            {uploaded ? (
-              <>
-                <div className="text-6xl mb-3 opacity-60">▶</div>
-                <div className="text-sm">时长: {Math.floor(uploaded.duration/60)}分{uploaded.duration%60}秒</div>
-                <div className="text-xs mt-1" style={{ color: '#475569' }}>{uploaded.width} × {uploaded.height}</div>
-              </>
-            ) : (
-              <div className="text-center">
-                <div className="text-5xl mb-3 opacity-30">📹</div>
-                <div className="text-sm" style={{ color: '#475569' }}>请先上传视频</div>
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* AI处理后效果 */}
-        <Card className="dark-card mb-4" size="small">
-          <div className="section-label">AI处理后效果</div>
-          <div className="video-preview-box" style={{ maxHeight: 380 }}>
-            {generatedResult ? (
-              <>
-                <div className="text-5xl mb-3">✨</div>
-                <div className="text-sm font-medium mb-1" style={{ color: '#818cf8' }}>剪辑完成！</div>
-                <div className="text-xs mb-3" style={{ color: '#64748b' }}>
-                  原时长 {Math.floor(uploaded.duration/60)}:{String(uploaded.duration%60).padStart(2,'0')} → 
-                  精华片段约 {Math.floor(uploaded.duration * 0.7)}秒
-                </div>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Tag color="purple">✓ 智能剪辑</Tag>
-                  <Tag color="cyan">✓ 自动字幕</Tag>
-                  <Tag color="pink">✓ BGM匹配</Tag>
-                </div>
-                {generatedResult.selectedMusic && (
-                  <div className="mt-3 px-4 py-2 rounded-lg" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
-                    <div className="text-xs" style={{ color: '#64748b' }}>🎵 {generatedResult.selectedMusic.name}</div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center">
-                <div className="text-5xl mb-3 opacity-20">🎬</div>
-                <div className="text-sm" style={{ color: '#475569' }}>
-                  {generating ? 'AI正在处理中...' : '点击上方按钮开始AI生成'}
-                </div>
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* 文案预览 */}
-        <Card className="dark-card mb-4" size="small">
-          <div className="flex items-center justify-between mb-4">
-            <div className="section-label" style={{ marginBottom: 0 }}>文案预览</div>
-            {generatedResult && <Button size="small" onClick={copyAllText}>📋 一键复制文案</Button>}
-          </div>
-          {generatedResult ? (
-            <div className="copy-box">
-              <div className="text-lg font-bold mb-2" style={{ color: '#f1f5f9' }}>{generatedResult.copy.title}</div>
-              <div className="text-sm mb-3 leading-relaxed" style={{ color: '#cbd5e1' }}>{generatedResult.copy.content}</div>
-              <div className="flex flex-wrap gap-1">
-                {generatedResult.copy.hashtags.map((t, i) => <span key={i} className="tag-custom">#{t}</span>)}
-              </div>
-              <Divider style={{ borderColor: 'rgba(99,102,241,0.15)', margin: '16px 0 12px' }} />
-              <div className="text-xs" style={{ color: '#64748b' }}>发布至：{generatedResult ? selectedPlatforms.map(p => platformConfig[p]?.name).join('、') : ''}</div>
-            </div>
-          ) : (
-            <div className="copy-box text-center py-8">
-              <div className="text-4xl mb-3 opacity-20">✍️</div>
-              <div className="text-sm" style={{ color: '#475569' }}>AI将自动生成适配各平台风格的文案</div>
-              <div className="text-xs mt-2" style={{ color: '#334155' }}>标题 · 正文 · 话题标签</div>
-            </div>
-          )}
-        </Card>
-
-        {/* 发布平台预览 */}
-        {generatedResult && (
-          <Card className="dark-card" size="small">
-            <div className="section-label">发布平台预览</div>
-            <div className="space-y-3">
-              {selectedPlatforms.map(p => (
-                <div key={p} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: platformConfig[p]?.bg, border: `1px solid ${platformConfig[p]?.color}40` }}>
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: platformConfig[p]?.color }}>{platformConfig[p]?.icon}</div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium" style={{ color: platformConfig[p]?.color }}>{platformConfig[p]?.name}</div>
-                    <div className="text-xs" style={{ color: '#64748b' }}>自动适配 {platformConfig[p]?.name} 风格 · 9:16竖屏</div>
-                  </div>
-                  <span style={{ color: '#22c55e', fontSize: 12 }}>✓ 就绪</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
-      </div>
     </div>
-  );
-};
-
-// ==================== 任务管理页 ====================
-const TasksPage = ({ tasks, updateTask, deleteTask }) => {
-  const [detailModal, setDetailModal] = useState(null);
-  const [publishing, setPublishing] = useState(false);
-
-  const statusMap = {
-    pending: { color: 'default', text: '待处理', bg: 'rgba(100,116,139,0.2)', dot: '⏳' },
-    processing: { color: 'processing', text: '处理中', bg: 'rgba(99,102,241,0.2)', dot: '⚙️' },
-    completed: { color: 'success', text: '已完成', bg: 'rgba(34,197,94,0.2)', dot: '✅' },
-    failed: { color: 'error', text: '发布失败', bg: 'rgba(239,68,68,0.2)', dot: '❌' },
-    published: { color: 'success', text: '已发布', bg: 'rgba(34,197,94,0.2)', dot: '🚀' }
-  };
-
-  const handlePublish = async (task) => {
-    setPublishing(true);
-    for (let i = 0; i <= 100; i += 10) {
-      await new Promise(r => setTimeout(r, 200));
-      updateTask(task.id, { publishProgress: i });
-    }
-    updateTask(task.id, { status: 'published', publishProgress: undefined });
-    setPublishing(false);
-    message.success(`已发布到 ${task.platform.map(p => platformConfig[p]?.name).join('、')}！`);
-  };
-
-  const columns = [
-    { title: '任务ID', dataIndex: 'id', key: 'id', width: 120, render: (id) => <span className="font-mono text-xs" style={{ color: '#64748b' }}>{id}</span> },
-    { title: '文件名', dataIndex: 'filename', key: 'filename', render: (text) => <span className="font-medium">{text}</span> },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 120, render: (s) => {
-      const m = statusMap[s] || statusMap.pending;
-      return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs" style={{ background: m.bg, color: s === 'completed' ? '#22c55e' : s === 'failed' ? '#ef4444' : '#94a3b8' }}>{m.dot} {m.text}</span>;
-    }},
-    { title: '平台', dataIndex: 'platform', key: 'platform', render: (ps) => <div className="flex gap-1">{ps.map(p => <span key={p} className="text-sm" title={platformConfig[p]?.name}>{platformConfig[p]?.icon}</span>)}</div> },
-    { title: '进度', dataIndex: 'progress', key: 'progress', width: 150, render: (p, r) => r.status === 'processing' || r.status === 'pending' ? <Progress percent={p} size="small" strokeColor="#6366f1" /> : <Progress percent={p} size="small" strokeColor={r.status === 'completed' || r.status === 'published' ? '#22c55e' : '#6366f1'} /> },
-    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (d) => <span className="text-sm" style={{ color: '#64748b' }}>{dayjs(d).format('MM-DD HH:mm')}</span> },
-    { title: '操作', key: 'action', width: 240, render: (_, r) => (
-      <div className="flex gap-2">
-        {r.status !== 'published' && <Button size="small" type="primary" onClick={() => handlePublish(r)} disabled={r.status === 'processing'}>发布</Button>}
-        <Button size="small" onClick={() => setDetailModal(r)}>查看</Button>
-        <Button size="small" disabled={r.status === 'processing'}>下载</Button>
-        <Popconfirm title="确定删除此任务？" onConfirm={() => deleteTask(r.id)}><Button size="small" danger>删除</Button></Popconfirm>
-      </div>
-    )}
-  ];
-
-  const groupTasks = (label, statuses) => tasks.filter(t => statuses.includes(t.status));
-
-  return (
-    <div className="space-y-6">
-      {/* 统计卡片 */}
-      <Row gutter={16}>
-        {[
-          { label: '全部任务', value: tasks.length, icon: '📋', color: '#6366f1' },
-          { label: '待处理', value: tasks.filter(t => t.status === 'pending').length, icon: '⏳', color: '#f59e0b' },
-          { label: '处理中', value: tasks.filter(t => t.status === 'processing').length, icon: '⚙️', color: '#38bdf8' },
-          { label: '已完成', value: tasks.filter(t => t.status === 'completed' || t.status === 'published').length, icon: '✅', color: '#22c55e' }
-        ].map((s, i) => (
-          <Col xs={12} sm={6} key={i}>
-            <Card className="dark-card">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: `${s.color}20` }}>{s.icon}</div>
-                <div><div className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</div><div className="text-sm" style={{ color: '#64748b' }}>{s.label}</div></div>
-              </div>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-
-      {/* 任务列表 */}
-      <Card className="dark-card" title={<span style={{ color: '#f1f5f9' }}>📋 全部任务</span>}>
-        <Table dataSource={tasks} columns={columns} rowKey="id" pagination={{ pageSize: 8, size: 'small' }} />
-      </Card>
-
-      {/* 任务详情弹窗 */}
-      <Modal open={!!detailModal} onCancel={() => setDetailModal(null)} title={<span style={{ color: '#f1f5f9' }}>任务详情</span>} width={700} className="dark-input"
-        footer={detailModal ? [
-          <Button key="close" onClick={() => setDetailModal(null)}>关闭</Button>,
-          detailModal.status !== 'published' && <Button key="publish" type="primary" onClick={() => { setDetailModal(null); handlePublish(detailModal); }}>立即发布</Button>
-        ] : null}>
-        {detailModal && (
-          <div className="space-y-4">
-            <Descriptions size="small" column={2} colon={false}
-              labelStyle={{ color: '#64748b' }}
-              contentStyle={{ color: '#e2e8f0' }}>
-              <Descriptions.Item label="任务ID">{detailModal.id}</Descriptions.Item>
-              <Descriptions.Item label="状态"><span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs" style={{ background: statusMap[detailModal.status]?.bg, color: '#94a3b8' }}>{statusMap[detailModal.status]?.dot} {statusMap[detailModal.status]?.text}</span></Descriptions.Item>
-              <Descriptions.Item label="文件名">{detailModal.filename}</Descriptions.Item>
-              <Descriptions.Item label="平台">{detailModal.platform.map(p => <span key={p} className="inline-flex items-center gap-1 mr-2">{platformConfig[p]?.icon} {platformConfig[p]?.name}</span>)}</Descriptions.Item>
-              <Descriptions.Item label="创建时间">{dayjs(detailModal.createdAt).format('YYYY-MM-DD HH:mm:ss')}</Descriptions.Item>
-            </Descriptions>
-            {detailModal.copy?.title && (
-              <>
-                <Divider style={{ borderColor: 'rgba(99,102,241,0.2)' }} />
-                <div>
-                  <div className="text-xs mb-2" style={{ color: '#64748b', textTransform: 'uppercase', letterSpacing: 2 }}>AI生成文案</div>
-                  <div className="copy-box">
-                    <div className="font-bold mb-2" style={{ color: '#f1f5f9' }}>{detailModal.copy.title}</div>
-                    <div className="text-sm mb-3" style={{ color: '#cbd5e1' }}>{detailModal.copy.content}</div>
-                    <div className="flex flex-wrap">{detailModal.copy.hashtags.map((t, i) => <span key={i} className="tag-custom">#{t}</span>)}</div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </Modal>
-    </div>
-  );
-};
-
-// ==================== 账号绑定页 ====================
-const AccountsPage = ({ accounts, bindAccount, unbindAccount }) => {
-  const [bindModal, setBindModal] = useState(null);
-  const [accountName, setAccountName] = useState('');
-
-  return (
-    <div className="space-y-6">
-      <Card className="dark-card" title={<span style={{ color: '#f1f5f9' }}>🔐 平台账号绑定</span>}>
-        <Alert type="info" showIcon style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', marginBottom: 24 }}
-          message={<span style={{ color: '#94a3b8' }}>账号绑定说明</span>}
-          description={<span style={{ color: '#64748b', fontSize: 13 }}>仅用于授权发布，不存储密码。绑定后可在智能创作页面一键发布视频到各平台。</span>}
-        />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
-          {accounts.map(acc => (
-            <div key={acc.platform} className="p-6 rounded-xl" style={{ background: platformConfig[acc.platform]?.bg, border: `1px solid ${platformConfig[acc.platform]?.color}40` }}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: platformConfig[acc.platform]?.color }}>{platformConfig[acc.platform]?.icon}</div>
-                  <div>
-                    <div className="font-bold text-base" style={{ color: platformConfig[acc.platform]?.color }}>{platformConfig[acc.platform]?.name}</div>
-                    {acc.bound ? <div className="text-xs" style={{ color: '#64748b' }}>{acc.name}</div> : <div className="text-xs" style={{ color: '#475569' }}>未绑定</div>}
-                  </div>
-                </div>
-                {acc.bound ? (
-                  <Tag color="success">✓ 已绑定</Tag>
-                ) : (
-                  <Tag style={{ background: 'rgba(100,116,139,0.2)', color: '#94a3b8', border: 'none' }}>未绑定</Tag>
-                )}
-              </div>
-              {acc.bound ? (
-                <div className="flex gap-2">
-                  <Button size="small" style={{ background: 'rgba(34,197,94,0.2)', color: '#22c55e', border: 'none' }}>✅ 已授权</Button>
-                  <Popconfirm title="确定解绑此账号？" onConfirm={() => unbindAccount(acc.platform)}>
-                    <Button size="small" danger type="text">解除绑定</Button>
-                  </Popconfirm>
-                </div>
-              ) : (
-                <Button size="middle" type="primary" className="w-full" onClick={() => setBindModal(acc.platform)}>
-                  去授权登录 →
-                </Button>
-              )}
+    
+    <!-- 管理后台 -->
+    <div id="adminPage" class="container" style="display:none;">
+        <div class="admin-header">
+            <h2>预约管理</h2>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-export" onclick="exportData()">导出</button>
+                <button class="btn btn-danger" onclick="adminLogout()">退出</button>
             </div>
-          ))}
         </div>
-      </Card>
-
-      {/* API说明 */}
-      <Card className="dark-card" title={<span style={{ color: '#f1f5f9' }}>📡 开放平台接入指南</span>}>
-        <div className="space-y-4">
-          {[
-            { platform: 'douyin', name: '抖音开放平台', url: 'open.douyin.com', desc: '支持企业号、个人创作者认证后接入' },
-            { platform: 'wechat', name: '微信视频号', url: 'channels.weixin.qq.com', desc: '需通过微信公众平台完成创作者认证' },
-            { platform: 'xiaohongshu', name: '小红书创作者平台', url: 'creator.xiaohongshu.com', desc: '入驻专业号后申请内容合作权限' },
-            { platform: 'kuaishou', name: '快手开放平台', url: 'open.kuaishou.com', desc: '注册开发者账号，申请应用权限' }
-          ].map(item => (
-            <div key={item.platform} className="flex items-center gap-4 p-4 rounded-lg" style={{ background: 'var(--bg-input)', border: '1px solid var(--border)' }}>
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style={{ background: platformConfig[item.platform]?.color }}>{platformConfig[item.platform]?.icon}</div>
-              <div className="flex-1">
-                <div className="font-medium">{item.name}</div>
-                <div className="text-xs" style={{ color: '#64748b' }}>{item.desc}</div>
-              </div>
-              <Tag style={{ background: 'rgba(99,102,241,0.1)', color: '#818cf8', border: 'none' }}>{item.url}</Tag>
+        
+        <div class="stat-cards">
+            <div class="stat-card"><div class="number" id="totalBookings">0</div><div class="label">总预约</div></div>
+            <div class="stat-card"><div class="number" id="todayBookings">0</div><div class="label">今日</div></div>
+            <div class="stat-card"><div class="number" id="upcomingBookings">0</div><div class="label">待上课</div></div>
+        </div>
+        
+        <div class="card" style="padding:15px;">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('all')">全部</button>
+                <button class="nav-tab" onclick="showTab('upcoming')">待上课</button>
+                <button class="nav-tab" onclick="showTab('completed')">已完成</button>
             </div>
-          ))}
+            
+            <div class="booking-list">
+                <div class="booking-item booking-header">
+                    <div>姓名</div>
+                    <div>日期时间</div>
+                    <div>操作</div>
+                </div>
+                <div id="bookingsContent"></div>
+            </div>
         </div>
-      </Card>
-
-      <Modal open={!!bindModal} onCancel={() => setBindModal(null)} title={<span style={{ color: '#f1f5f9' }}>绑定 {platformConfig[bindModal]?.name} 账号</span>} footer={[
-        <Button key="cancel" onClick={() => setBindModal(null)}>取消</Button>,
-        <Button key="bind" type="primary" onClick={() => { bindAccount(bindModal, accountName); setBindModal(null); setAccountName(''); message.success('账号绑定成功！'); }}>确认绑定</Button>
-      ]}>
-        <div className="space-y-4">
-          <Alert type="info" showIcon message={<span style={{ color: '#94a3b8' }}>模拟绑定模式</span>} description={<span style={{ color: '#64748b' }}>正式使用时请前往各平台开放平台申请API权限。当前为演示模式，输入任意账号名即可绑定。</span>} />
-          <div>
-            <label className="block text-sm mb-2" style={{ color: '#94a3b8' }}>账号名称</label>
-            <Input placeholder="输入你的账号名称" value={accountName} onChange={e => setAccountName(e.target.value)} className="dark-input" />
-          </div>
+        
+        <div class="info-card">
+            <h3>发送提醒</h3>
+            <button class="btn btn-success" onclick="sendReminders()" style="margin-bottom:10px;">批量发送提醒</button>
+            <div id="reminderStatus" style="font-size:13px;"></div>
         </div>
-      </Modal>
+        
+        <div class="info-card">
+            <h3>分享链接</h3>
+            <input type="text" id="shareLink" readonly>
+            <button class="btn btn-primary" onclick="copyLink()" style="margin-top:10px;">复制链接</button>
+        </div>
     </div>
-  );
-};
-
-// ==================== 素材库页 ====================
-const LibraryPage = ({ musicLibrary, toggleMusicLike }) => {
-  const [activeTab, setActiveTab] = useState('music');
-  const [musicFilter, setMusicFilter] = useState('all');
-  const [playingId, setPlayingId] = useState(null);
-
-  const filteredMusic = musicFilter === 'all' ? musicLibrary : musicFilter === 'liked' ? musicLibrary.filter(m => m.liked) : musicLibrary.filter(m => m.mood === musicFilter);
-
-  return (
-    <div className="space-y-6">
-      <Tabs activeKey={activeTab} onChange={setActiveTab}
-        items={[
-          { key: 'music', label: '🎵 音乐库', children: (
-            <div>
-              <div className="flex gap-2 mb-4 flex-wrap">
-                {['all', '欢快', '温情', '励志', '悬疑', '浪漫', '自然', 'liked'].map(f => (
-                  <Button key={f} size="small" type={musicFilter === f ? 'primary' : 'default'} onClick={() => setMusicFilter(f)}>
-                    {f === 'all' ? '全部' : f === 'liked' ? '❤️ 收藏' : f}
-                  </Button>
-                ))}
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                {filteredMusic.map(m => (
-                  <Card key={m.id} size="small" className="dark-card cursor-pointer" onClick={() => setPlayingId(playingId === m.id ? null : m.id)}
-                    style={{ transition: 'all 0.3s', transform: playingId === m.id ? 'scale(1.02)' : 'none' }}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg, #6366f1, #ec4899)' }}>
-                        {playingId === m.id ? '🔊' : '🎵'}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-sm">{m.name}</div>
-                        <div className="text-xs" style={{ color: '#64748b' }}>{m.artist} · {m.duration} · {m.mood}</div>
-                        <div className="flex gap-1 mt-1">{m.platforms.map(p => <span key={p} className="text-xs">{platformConfig[p]?.icon}</span>)}</div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Button size="small" type="text" onClick={(e) => { e.stopPropagation(); toggleMusicLike(m.id); }}>{m.liked ? '❤️' : '🤍'}</Button>
-                        <Tag size="small">{m.mood}</Tag>
-                      </div>
+    
+    <script>
+        const CONFIG = {
+            adminPassword: 'wxd993',
+            startDate: '2026-04-14',
+            endDate: '2026-04-23',
+            timeslots: [
+                { id: '18:00-19:00', start: '18:00' },
+                { id: '19:00-20:00', start: '19:00' },
+                { id: '20:00-21:00', start: '20:00' }
+            ]
+        };
+        
+        let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        let selectedSlot = null;
+        
+        function init() {
+            renderDates();
+            checkAdminSession();
+            updateStats();
+        }
+        
+        function renderDates() {
+            const container = document.getElementById('dateGrid');
+            const start = new Date(CONFIG.startDate);
+            const end = new Date(CONFIG.endDate);
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            
+            let html = '';
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toISOString().split('T')[0];
+                const day = d.getDate();
+                const weekday = weekdays[d.getDay()];
+                
+                const hasAvailable = CONFIG.timeslots.some(slot => {
+                    const slotKey = `${dateStr}-${slot.id}`;
+                    return !bookings.some(b => b.slotKey === slotKey);
+                });
+                
+                const allFull = !hasAvailable;
+                
+                html += `<div class="date-item ${allFull ? 'full' : ''}" onclick="${allFull ? '' : `selectDate('${dateStr}')`}">
+                    <span class="day">${day}日</span>
+                    <span class="weekday">${weekday}</span>
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+        
+        function selectDate(dateStr) {
+            document.querySelectorAll('.date-item').forEach(el => el.classList.remove('selected'));
+            event.target.closest('.date-item').classList.add('selected');
+            loadTimeSlots(dateStr);
+        }
+        
+        function loadTimeSlots(date) {
+            const timeSection = document.getElementById('timeSection');
+            timeSection.style.display = 'block';
+            
+            const d = new Date(date);
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            document.getElementById('selectedDateTitle').textContent = `${d.getMonth()+1}月${d.getDate()}日 ${weekdays[d.getDay()]}`;
+            document.getElementById('bookingForm').style.display = 'none';
+            
+            const container = document.getElementById('timeSlots');
+            container.innerHTML = '';
+            
+            CONFIG.timeslots.forEach(slot => {
+                const slotKey = `${date}-${slot.id}`;
+                const isBooked = bookings.some(b => b.slotKey === slotKey);
+                
+                const div = document.createElement('div');
+                div.className = `time-slot ${isBooked ? 'booked' : ''}`;
+                div.textContent = isBooked ? slot.id + ' 已约' : slot.id;
+                if (!isBooked) div.onclick = () => selectSlot(div, date, slot);
+                container.appendChild(div);
+            });
+        }
+        
+        function selectSlot(element, date, slot) {
+            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedSlot = { date, slot };
+            document.getElementById('bookingForm').style.display = 'block';
+            document.getElementById('successPage').classList.remove('show');
+        }
+        
+        function submitBooking() {
+            const childName = document.getElementById('childName').value.trim();
+            const parentPhone = document.getElementById('parentPhone').value.trim();
+            const manuscriptType = document.getElementById('manuscriptType').value;
+            
+            if (!childName || !parentPhone) return alert('请填写姓名和手机号');
+            if (!/^1[3-9]\d{9}$/.test(parentPhone)) return alert('请输入正确手机号');
+            if (!selectedSlot) return alert('请选择时间段');
+            
+            const slotKey = `${selectedSlot.date}-${selectedSlot.slot.id}`;
+            if (bookings.some(b => b.slotKey === slotKey)) {
+                alert('该时段已被预约');
+                loadTimeSlots(selectedSlot.date);
+                return;
+            }
+            
+            bookings.push({
+                id: Date.now(),
+                slotKey,
+                date: selectedSlot.date,
+                timeSlot: selectedSlot.slot.id,
+                startTime: selectedSlot.slot.start,
+                childName,
+                parentPhone,
+                manuscriptType,
+                status: 'upcoming'
+            });
+            
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            
+            document.getElementById('timeSection').style.display = 'none';
+            document.getElementById('bookingForm').style.display = 'none';
+            document.getElementById('successPage').classList.add('show');
+            document.getElementById('successInfo').innerHTML = `<strong>${childName}</strong><br>${selectedSlot.date} ${selectedSlot.slot.id}`;
+            
+            updateStats();
+            renderDates();
+        }
+        
+        function resetBooking() {
+            document.getElementById('timeSection').style.display = 'none';
+            document.getElementById('bookingForm').style.display = 'none';
+            document.getElementById('successPage').classList.remove('show');
+            document.getElementById('childName').value = '';
+            document.getElementById('parentPhone').value = '';
+            selectedSlot = null;
+            renderDates();
+        }
+        
+        function checkAdminSession() {
+            if (sessionStorage.getItem('isAdmin') === 'true') showAdminPage();
+        }
+        
+        function adminLogin() {
+            if (document.getElementById('loginPassword').value === CONFIG.adminPassword) {
+                sessionStorage.setItem('isAdmin', 'true');
+                showAdminPage();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+        
+        function adminLogout() {
+            sessionStorage.removeItem('isAdmin');
+            document.getElementById('adminPage').style.display = 'none';
+            document.getElementById('bookingPage').style.display = 'block';
+        }
+        
+        function backToBooking() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('bookingPage').style.display = 'block';
+        }
+        
+        function showAdminPage() {
+            document.getElementById('bookingPage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminPage').style.display = 'block';
+            renderBookings();
+            updateStats();
+            document.getElementById('shareLink').value = location.href.split('?')[0];
+        }
+        
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('totalBookings').textContent = bookings.length;
+            document.getElementById('todayBookings').textContent = bookings.filter(b => b.date === today).length;
+            document.getElementById('upcomingBookings').textContent = bookings.filter(b => b.status === 'upcoming').length;
+        }
+        
+        function renderBookings(filter = 'all') {
+            const container = document.getElementById('bookingsContent');
+            let filtered = bookings;
+            if (filter === 'upcoming') filtered = bookings.filter(b => b.status === 'upcoming');
+            if (filter === 'completed') filtered = bookings.filter(b => b.status === 'completed');
+            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            if (!filtered.length) {
+                container.innerHTML = '<div style="padding:30px; text-align:center; color:#999;">暂无预约</div>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(b => `
+                <div class="booking-item">
+                    <div><strong>${b.childName}</strong><br><small style="color:#666;">${b.parentPhone}</small></div>
+                    <div>${b.date}<br><small>${b.timeSlot}</small></div>
+                    <div class="actions">
+                        ${b.status === 'upcoming' ? `
+                            <button class="btn-sm-success" onclick="markComplete(${b.id})">完成</button>
+                            <button class="btn-sm-danger" onclick="cancelBooking(${b.id})">取消</button>
+                        ` : '<span style="color:#28a745;">已完成</span>'}
                     </div>
-                    {playingId === m.id && (
-                      <div className="mt-3">
-                        <Slider defaultValue={30} size="small" />
-                        <div className="flex justify-between text-xs mt-1" style={{ color: '#64748b' }}>
-                          <span>0:00</span><span>{m.duration}</span>
-                        </div>
-                      </div>
-                    )}
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )},
-          { key: 'template', label: '🖼️ 封面模板', children: (
-            <div>
-              <Row gutter={16}>
-                {[
-                  { name: '爆款标题', ratio: '9:16', color: '#6366f1', emoji: '🔥' },
-                  { name: '情感故事', ratio: '9:16', color: '#f472b6', emoji: '💕' },
-                  { name: '产品展示', ratio: '9:16', color: '#22c55e', emoji: '🛍️' },
-                  { name: '美食特写', ratio: '9:16', color: '#f59e0b', emoji: '🍜' },
-                  { name: '知识干货', ratio: '9:16', color: '#38bdf8', emoji: '📚' },
-                  { name: '搞笑集锦', ratio: '9:16', color: '#ec4899', emoji: '😂' }
-                ].map((t, i) => (
-                  <Col xs={12} sm={8} md={6} key={i}>
-                    <Card size="small" className="dark-card text-center" style={{ cursor: 'pointer' }}>
-                      <div className="mx-auto mb-3 rounded-lg overflow-hidden" style={{ background: `${t.color}20`, aspectRatio: '9/16', maxHeight: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>
-                        {t.emoji}
-                      </div>
-                      <div className="text-sm font-medium">{t.name}</div>
-                      <div className="text-xs" style={{ color: '#64748b' }}>{t.ratio}</div>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-            </div>
-          )},
-          { key: 'copy', label: '✍️ 文案模板', children: (
-            <div className="space-y-4">
-              {[
-                { style: '口播知识', title: '学会这招，效率翻倍！建议收藏', content: '家人们，这个方法真的绝了！看完你就明白了👇赶紧收藏起来慢慢看！', tags: ['知识分享','干货','必看'] },
-                { style: '美食探店', title: '这家店真的好吃到哭😭', content: '挖到宝了！本地人都知道的宝藏小店🔥环境超棒，味道一绝！建议早点去排队~', tags: ['美食探店','宝藏小店','同城美食'] },
-                { style: '好物带货', title: '这个真的太好用了！强烈推荐！', content: '用了半个月才来分享，真的是神器！性价比超高，入手不亏！姐妹们快冲~💕', tags: ['好物分享','种草','必买清单'] },
-                { style: '搞笑剧情', title: '笑不活了！这个也太离谱了🤣', content: '家人们谁懂啊！本来以为很正常，结果...哈哈哈哈哈笑死我了！你们来评评理！', tags: ['搞笑','沙雕日常','段子'] }
-              ].map((t, i) => (
-                <Card key={i} size="small" className="dark-card">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <Tag size="small" style={{ background: 'rgba(99,102,241,0.2)', color: '#818cf8', border: 'none', marginBottom: 8 }}>{t.style}</Tag>
-                      <div className="font-bold mb-2">{t.title}</div>
-                      <div className="text-sm mb-3" style={{ color: '#94a3b8' }}>{t.content}</div>
-                      <div className="flex flex-wrap gap-1">{t.tags.map(tag => <span key={tag} className="tag-custom">{tag}</span>)}</div>
-                    </div>
-                    <Button size="small" type="text" onClick={() => { navigator.clipboard.writeText(`${t.title}\n\n${t.content}`); message.success('已复制！'); }}>复制</Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        ]}
-      />
-    </div>
-  );
-};
-
-// ==================== 系统设置页 ====================
-const SettingsPage = ({ settings, updateSettings }) => {
-  return (
-    <div className="space-y-6">
-      <Row gutter={24}>
-        <Col xs={24} lg={12}>
-          <Card className="dark-card" title={<span style={{ color: '#f1f5f9' }}>⚙️ 输出设置</span>}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm mb-2" style={{ color: '#94a3b8' }}>默认输出分辨率</label>
-                <Select value={settings.resolution} onChange={v => updateSettings({ resolution: v })} className="dark-input w-full">
-                  <Select.Option value="1080x1920">9:16 1080×1920 (竖屏推荐)</Select.Option>
-                  <Select.Option value="1920x1080">16:9 1920×1080 (横屏)</Select.Option>
-                  <Select.Option value="1080x1080">1:1 1080×1080 (方形)</Select.Option>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm mb-2" style={{ color: '#94a3b8' }}>字幕字体</label>
-                <Select value={settings.font} onChange={v => updateSettings({ font: v })} className="dark-input w-full">
-                  <Select.Option value="常规">常规字体</Select.Option>
-                  <Select.Option value="醒目">醒目字体</Select.Option>
-                  <Select.Option value="综艺体">综艺体</Select.Option>
-                </Select>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm" style={{ color: '#94a3b8' }}>水印设置</div>
-                  <div className="text-xs" style={{ color: '#64748b' }}>在视频右下角添加平台水印</div>
                 </div>
-                <Switch checked={settings.watermark} onChange={v => updateSettings({ watermark: v })} />
-              </div>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} lg={12}>
-          <Card className="dark-card" title={<span style={{ color: '#f1f5f9' }}>🚀 自动发布</span>}>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm" style={{ color: '#94a3b8' }}>生成完成后自动发布</div>
-                  <div className="text-xs" style={{ color: '#64748b' }}>关闭后需手动点击发布按钮</div>
-                </div>
-                <Switch checked={settings.autoPublish} onChange={v => updateSettings({ autoPublish: v })} />
-              </div>
-              <Divider style={{ borderColor: 'rgba(99,102,241,0.15)' }} />
-              <div>
-                <label className="block text-sm mb-2" style={{ color: '#94a3b8' }}>字幕颜色</label>
-                <Select value={settings.subtitleColor} onChange={v => updateSettings({ subtitleColor: v })} className="dark-input w-full">
-                  <Select.Option value="white">白字黑边</Select.Option>
-                  <Select.Option value="yellow">黄字黑边</Select.Option>
-                </Select>
-              </div>
-            </div>
-          </Card>
-        </Col>
-      </Row>
-
-      <Card className="dark-card" title={<span style={{ color: '#f1f5f9' }}>🗂️ 数据管理</span>}>
-        <div className="flex gap-4 flex-wrap">
-          <Button onClick={() => { localStorage.clear(); message.success('缓存已清理！'); window.location.reload(); }}>🗑️ 清理缓存</Button>
-          <Button onClick={() => { const d = JSON.stringify({ tasks: [], accounts: [] }); localStorage.setItem('ai_tasks', d); localStorage.setItem('ai_accounts', d); message.success('所有数据已重置！'); window.location.reload(); }} danger>⚠️ 重置所有数据</Button>
-        </div>
-      </Card>
-
-      <Card className="dark-card" title={<span style={{ color: '#f1f5f9' }}>ℹ️ 关于系统</span>}>
-        <div className="text-center py-6">
-          <div className="text-4xl mb-3 gradient-text font-bold text-2xl">AI短视频智造工厂</div>
-          <div className="text-sm mb-4" style={{ color: '#64748b' }}>版本 1.0.0</div>
-          <div className="text-sm" style={{ color: '#475569' }}>技术支持：AI自动剪辑 + 多平台同步发布</div>
-        </div>
-      </Card>
-    </div>
-  );
-};
-
-// ==================== 主应用 ====================
-const App = () => {
-  const [currentPage, setCurrentPage] = useState('create');
-  const state = useAppState();
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'create': return <CreatePage addTask={state.addTask} tasks={state.tasks} />;
-      case 'tasks': return <TasksPage tasks={state.tasks} updateTask={state.updateTask} deleteTask={state.deleteTask} />;
-      case 'accounts': return <AccountsPage accounts={state.accounts} bindAccount={state.bindAccount} unbindAccount={state.unbindAccount} />;
-      case 'library': return <LibraryPage musicLibrary={state.musicLibrary} toggleMusicLike={state.toggleMusicLike} />;
-      case 'settings': return <SettingsPage settings={state.settings} updateSettings={state.updateSettings} />;
-      default: return <CreatePage addTask={state.addTask} tasks={state.tasks} />;
-    }
-  };
-
-  return (
-    <div style={{ minHeight: '100vh' }}>
-      <TopNav currentPage={currentPage} setCurrentPage={setCurrentPage} user="创作者" />
-      <Content style={{ padding: '76px 24px 24px', maxWidth: 1400, margin: '0 auto' }}>
-        {renderPage()}
-      </Content>
-      {/* 底部版权 */}
-      <div style={{ textAlign: 'center', padding: '20px', borderTop: '1px solid var(--border)', marginTop: 20 }}>
-        <span className="text-xs" style={{ color: '#475569' }}>
-          Copyright © AI短视频智造工厂 · 技术支持：AI自动剪辑 + 多平台同步发布
-        </span>
-      </div>
-    </div>
-  );
-};
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
-</script>
+            `).join('');
+        }
+        
+        function showTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderBookings(tab);
+        }
+        
+        function markComplete(id) {
+            const b = bookings.find(x => x.id === id);
+            if (b) { b.status = 'completed'; localStorage.setItem('bookings', JSON.stringify(bookings)); renderBookings('upcoming'); updateStats(); }
+        }
+        
+        function cancelBooking(id) {
+            if (confirm('确定取消？')) {
+                bookings = bookings.filter(b => b.id !== id);
+                localStorage.setItem('bookings', JSON.stringify(bookings));
+                renderBookings('all');
+                updateStats();
+                renderDates();
+            }
+        }
+        
+        function sendReminders() {
+            document.getElementById('reminderStatus').innerHTML = '<span style="color:#28a745;">提醒功能已启动，课前30分钟自动发送短信</span>';
+        }
+        
+        function exportData() {
+            let csv = '姓名,电话,日期,时间段,类型,状态\n';
+            bookings.forEach(b => csv += `${b.childName},${b.parentPhone},${b.date},${b.timeSlot},${b.manuscriptType || ''},${b.status}\n`);
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `预约_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+        }
+        
+        function copyLink() {
+            document.getElementById('shareLink').select();
+            document.execCommand('copy');
+            alert('已复制');
+        }
+        
+        if (new URLSearchParams(location.search).get('mode') === 'admin') {
+            document.getElementById('bookingPage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+        }
+        init();
+    </script>
 </body>
 </html>
